@@ -190,20 +190,13 @@
     <button class="mode-btn" id="modeRandomBtn">🎲 随机抽题 (5题练习)</button>
   </div>
   
-  <!-- 筛选栏 -->
+  <!-- 筛选栏：年度模式下只显示一个年份选择，随机模式下不显示年份 -->
   <div class="filter-bar" id="filterBar">
     <div class="filter-group" id="yearlyYearGroup">
       <label>📅 选择试卷年份</label>
       <select id="yearlyYearSelect"></select>
     </div>
-    <div class="filter-group hidden" id="rangeYearStartGroup">
-      <label>📅 起始试卷年份</label>
-      <select id="yearStartSelect"></select>
-    </div>
-    <div class="filter-group hidden" id="rangeYearEndGroup">
-      <label>📅 结束试卷年份</label>
-      <select id="yearEndSelect"></select>
-    </div>
+    <!-- 起始/结束年份已移除，只保留章节筛选 -->
     <div class="filter-group">
       <label>📖 年级/章节 (可选)</label>
       <input type="text" id="chapterFilter" placeholder="F.4 Ch 2" list="chapterDatalist">
@@ -276,7 +269,6 @@
   <div class="action-bar">
     <div class="email-badge">📧 答案发送至: yh@ktmc.edu.hk</div>
     <div class="button-group">
-      <!-- Google Sheets URL 已预填 -->
       <input type="text" id="googleSheetUrl" class="gs-url-input" placeholder="🔗 粘贴 Google Apps Script Web App URL" value="https://script.google.com/macros/s/AKfycbwMvVQ-bsxr_pccD5xWujqGxlodsk4HUjQ7ccI9CGLpHufhCgdVganpI6wRrTpyHEsw/exec">
       <button type="button" class="btn-submit" id="googleSheetSubmitBtn" style="background: #0d6e2f;">📊 提交到 Google 表格</button>
       <button type="button" class="btn-submit" id="emailSubmitBtn">📨 提交答案到邮箱</button>
@@ -293,24 +285,18 @@
   (function(){
     "use strict";
 
-    // ---------- 全局题库 & 映射 ----------
     let masterBank = [...DEFAULT_BANK];
-    // 注意：题目HTML内容已无法通过上传添加，如需显示题目内容，请在questionBank.js中直接填充questionHtmlMap
-    const questionHtmlMap = new Map();
+    const questionHtmlMap = new Map(); // 可在questionBank.js中填充
     
     let globalLevels = [];
     let globalTypes = [];
     const GRADE_LABELS = ['Form 1', 'Form 2', 'Form 3', 'Form 4', 'Form 5', 'Form 6'];
 
-    // ---------- DOM 元素 ----------
+    // DOM 元素
     const modeYearlyBtn = document.getElementById('modeYearlyBtn');
     const modeRandomBtn = document.getElementById('modeRandomBtn');
     const yearlyYearGroup = document.getElementById('yearlyYearGroup');
-    const rangeYearStartGroup = document.getElementById('rangeYearStartGroup');
-    const rangeYearEndGroup = document.getElementById('rangeYearEndGroup');
     const yearlyYearSelect = document.getElementById('yearlyYearSelect');
-    const yearStartSelect = document.getElementById('yearStartSelect');
-    const yearEndSelect = document.getElementById('yearEndSelect');
     const chapterFilter = document.getElementById('chapterFilter');
     const chapterDatalist = document.getElementById('chapterDatalist');
     const refreshBtn = document.getElementById('refreshQuestionsBtn');
@@ -335,7 +321,6 @@
     let chartLevel = null, chartType = null, chartForm = null;
     let lastStats = null;
 
-    // ---------- 工具函数 ----------
     function extractGlobalDimensions() {
       const levelsSet = new Set();
       const typesSet = new Set();
@@ -362,10 +347,6 @@
       if (years.length === 0) return;
       yearlyYearSelect.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
       yearlyYearSelect.value = years[years.length - 1];
-      yearStartSelect.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
-      yearStartSelect.value = years[0];
-      yearEndSelect.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
-      yearEndSelect.value = years[years.length - 1];
     }
 
     function populateStudentAcademicYear() {
@@ -385,15 +366,11 @@
         modeYearlyBtn.classList.add('active');
         modeRandomBtn.classList.remove('active');
         yearlyYearGroup.classList.remove('hidden');
-        rangeYearStartGroup.classList.add('hidden');
-        rangeYearEndGroup.classList.add('hidden');
         refreshBtn.textContent = '📋 生成完整试卷';
       } else {
         modeRandomBtn.classList.add('active');
         modeYearlyBtn.classList.remove('active');
         yearlyYearGroup.classList.add('hidden');
-        rangeYearStartGroup.classList.remove('hidden');
-        rangeYearEndGroup.classList.remove('hidden');
         refreshBtn.textContent = '🎲 随机抽5题';
       }
       refreshQuestions();
@@ -412,11 +389,8 @@
       if (currentMode === 'yearly') {
         const selectedYear = parseInt(yearlyYearSelect.value) || 0;
         filtered = filtered.filter(q => q.year === selectedYear);
-      } else {
-        const startY = parseInt(yearStartSelect.value) || 0;
-        const endY = parseInt(yearEndSelect.value) || 9999;
-        filtered = filtered.filter(q => q.year >= startY && q.year <= endY);
       }
+      // 随机模式：不过滤年份，使用全部题库
       if (query) {
         filtered = filtered.filter(q => 
           (q.chapterMain || '').toLowerCase().includes(query) || 
@@ -433,9 +407,7 @@
         const yearVal = yearlyYearSelect.value || '?';
         statsDisplay.innerHTML = `📅 年度完整试卷 · ${yearVal} 年 · 共 ${filtered.length} 题`;
       } else {
-        const startVal = yearStartSelect.value || '?';
-        const endVal = yearEndSelect.value || '?';
-        statsDisplay.innerHTML = `🎲 随机抽题 · ${startVal} - ${endVal} 年 · 题库共 ${filtered.length} 题 (每次抽5题)`;
+        statsDisplay.innerHTML = `🎲 随机抽题 · 全部年份 · 题库共 ${filtered.length} 题 (每次抽5题)`;
       }
     }
 
@@ -489,7 +461,6 @@
       updateStats();
     }
 
-    // ---------- 答题与报告 ----------
     function collectAnswers() {
       const answers = {};
       currentQuestions.forEach(q => {
@@ -512,39 +483,18 @@
         const q = item.meta;
         const isCorrect = (item.user === item.correct);
         const lvl = q.level;
-        if (levelStats.has(lvl)) {
-          const stat = levelStats.get(lvl);
-          stat.total++;
-          if (isCorrect) stat.correct++;
-        }
+        if (levelStats.has(lvl)) { const stat = levelStats.get(lvl); stat.total++; if (isCorrect) stat.correct++; }
         const tc = q.typeCode;
-        if (typeStats.has(tc)) {
-          const stat = typeStats.get(tc);
-          stat.total++;
-          if (isCorrect) stat.correct++;
-        }
+        if (typeStats.has(tc)) { const stat = typeStats.get(tc); stat.total++; if (isCorrect) stat.correct++; }
         const grade = extractGradeFromChapter(q.chapterMain);
-        if (grade && gradeStats.has(grade)) {
-          const stat = gradeStats.get(grade);
-          stat.total++;
-          if (isCorrect) stat.correct++;
-        }
+        if (grade && gradeStats.has(grade)) { const stat = gradeStats.get(grade); stat.total++; if (isCorrect) stat.correct++; }
       });
       const levelLabels = globalLevels.map(l => `Lv.${l}`);
-      const levelData = globalLevels.map(l => {
-        const stat = levelStats.get(l);
-        return stat.total > 0 ? (stat.correct / stat.total) * 100 : 0;
-      });
+      const levelData = globalLevels.map(l => { const s = levelStats.get(l); return s.total ? (s.correct / s.total) * 100 : 0; });
       const typeLabels = [...globalTypes];
-      const typeData = globalTypes.map(t => {
-        const stat = typeStats.get(t);
-        return stat.total > 0 ? (stat.correct / stat.total) * 100 : 0;
-      });
+      const typeData = globalTypes.map(t => { const s = typeStats.get(t); return s.total ? (s.correct / s.total) * 100 : 0; });
       const gradeLabels = GRADE_LABELS;
-      const gradeData = GRADE_LABELS.map(g => {
-        const stat = gradeStats.get(g);
-        return stat.total > 0 ? (stat.correct / stat.total) * 100 : 0;
-      });
+      const gradeData = GRADE_LABELS.map(g => { const s = gradeStats.get(g); return s.total ? (s.correct / s.total) * 100 : 0; });
       return { levelLabels, levelData, typeLabels, typeData, gradeLabels, gradeData };
     }
 
@@ -555,26 +505,10 @@
       if(chartLevel) chartLevel.destroy();
       if(chartType) chartType.destroy();
       if(chartForm) chartForm.destroy();
-      const baseOpt = {
-        scales: { r: { beginAtZero: true, max: 100, ticks: { stepSize: 20 } } },
-        plugins: { tooltip: { callbacks: { label: (ctx) => `${ctx.raw.toFixed(1)}%` } } },
-        animation: { duration: 0 }
-      };
-      chartLevel = new Chart(ctxLevel, {
-        type: 'radar',
-        data: { labels: stats.levelLabels, datasets: [{ label: '正确率 %', data: stats.levelData, backgroundColor: 'rgba(26,115,232,0.2)', borderColor: '#1a73e8' }] },
-        options: baseOpt
-      });
-      chartType = new Chart(ctxType, {
-        type: 'radar',
-        data: { labels: stats.typeLabels, datasets: [{ label: '正确率 %', data: stats.typeData, backgroundColor: 'rgba(46,125,50,0.2)', borderColor: '#2e7d32' }] },
-        options: baseOpt
-      });
-      chartForm = new Chart(ctxForm, {
-        type: 'radar',
-        data: { labels: stats.gradeLabels, datasets: [{ label: '正确率 %', data: stats.gradeData, backgroundColor: 'rgba(183,28,28,0.2)', borderColor: '#b71c1c' }] },
-        options: baseOpt
-      });
+      const baseOpt = { scales: { r: { beginAtZero: true, max: 100, ticks: { stepSize: 20 } } }, plugins: { tooltip: { callbacks: { label: (ctx) => `${ctx.raw.toFixed(1)}%` } } }, animation: { duration: 0 } };
+      chartLevel = new Chart(ctxLevel, { type: 'radar', data: { labels: stats.levelLabels, datasets: [{ label: '正确率 %', data: stats.levelData, backgroundColor: 'rgba(26,115,232,0.2)', borderColor: '#1a73e8' }] }, options: baseOpt });
+      chartType = new Chart(ctxType, { type: 'radar', data: { labels: stats.typeLabels, datasets: [{ label: '正确率 %', data: stats.typeData, backgroundColor: 'rgba(46,125,50,0.2)', borderColor: '#2e7d32' }] }, options: baseOpt });
+      chartForm = new Chart(ctxForm, { type: 'radar', data: { labels: stats.gradeLabels, datasets: [{ label: '正确率 %', data: stats.gradeData, backgroundColor: 'rgba(183,28,28,0.2)', borderColor: '#b71c1c' }] }, options: baseOpt });
     }
 
     function updateSummary(answerMap, stats) {
@@ -609,13 +543,8 @@
       const yearLabel = academicYear.options[academicYear.selectedIndex]?.text || '';
       const fileName = `${name}_${sid}_${cls}_${yearLabel}_报告.xlsx`;
       const wb = XLSX.utils.book_new();
-      const wsData = [
-        ['姓名', name], ['学号', sid], ['班级', cls], ['学生学年', yearLabel], ['日期', new Date().toLocaleDateString()], [],
-        ['题目ID', '试卷年份', '你的答案', '正确答案', '结果']
-      ];
-      Object.entries(answerMap).forEach(([id, item]) => {
-        wsData.push([id, item.meta.year, item.user, item.correct, item.user === item.correct ? '✔' : '✘']);
-      });
+      const wsData = [['姓名', name], ['学号', sid], ['班级', cls], ['学生学年', yearLabel], ['日期', new Date().toLocaleDateString()], [], ['题目ID', '试卷年份', '你的答案', '正确答案', '结果']];
+      Object.entries(answerMap).forEach(([id, item]) => { wsData.push([id, item.meta.year, item.user, item.correct, item.user === item.correct ? '✔' : '✘']); });
       wsData.push([], ['难度分析']); stats.levelLabels.forEach((l,i) => wsData.push([l, stats.levelData[i].toFixed(1)+'%']));
       wsData.push([], ['题型分析']); stats.typeLabels.forEach((l,i) => wsData.push([l, stats.typeData[i].toFixed(1)+'%']));
       wsData.push([], ['年级分析']); stats.gradeLabels.forEach((l,i) => wsData.push([l, stats.gradeData[i].toFixed(1)+'%']));
@@ -665,85 +594,11 @@
       const imgType = canvasType ? canvasType.toDataURL('image/png') : '';
       const imgForm = canvasForm ? canvasForm.toDataURL('image/png') : '';
       let detailRows = '';
-      Object.entries(answerMap).forEach(([id, item]) => {
-        const q = item.meta;
-        detailRows += `<tr><td>${id}</td><td>${q.year} #${q.number}</td><td>${item.user || '未选'}</td><td>${item.correct}</td><td>${item.user === item.correct ? '✔' : '✘'}</td></tr>`;
-      });
-      let levelRows = '';
-      stats.levelLabels.forEach((l, i) => {
-        levelRows += `<tr><td>${l}</td><td>${stats.levelData[i].toFixed(1)}%</td></tr>`;
-      });
-      let typeRows = '';
-      stats.typeLabels.forEach((l, i) => {
-        typeRows += `<tr><td>${l}</td><td>${stats.typeData[i].toFixed(1)}%</td></tr>`;
-      });
-      let gradeRows = '';
-      stats.gradeLabels.forEach((l, i) => {
-        gradeRows += `<tr><td>${l}</td><td>${stats.gradeData[i].toFixed(1)}%</td></tr>`;
-      });
-      const htmlContent = `<!DOCTYPE html>
-<html lang="zh">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>📊 数学能力分析报告 - ${name} ${sid}</title>
-  <style>
-    body { font-family: 'Inter', sans-serif; background: #f4f7fc; padding: 2rem; }
-    .report-container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 24px; padding: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-    h1 { color: #0a2540; border-bottom: 2px solid #2b6eb3; padding-bottom: 0.5rem; }
-    .info-bar { display: flex; gap: 2rem; flex-wrap: wrap; background: #eef4ff; padding: 1rem 1.5rem; border-radius: 16px; margin: 1.5rem 0; }
-    .score-overview { font-size: 1.5rem; font-weight: 700; color: #1a5d9c; }
-    .charts-container { display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center; margin: 2rem 0; }
-    .chart-card { flex: 1 1 300px; background: #f9fcff; border-radius: 20px; padding: 1rem; text-align: center; border: 1px solid #dbe6f0; }
-    .chart-card img { max-width: 100%; height: auto; border-radius: 12px; }
-    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #e2e9f2; }
-    th { background: #0a2540; color: white; font-weight: 600; }
-    tr:hover { background: #f5f9ff; }
-    .footer-note { margin-top: 2rem; text-align: right; color: #7b95af; font-size: 0.9rem; }
-  </style>
-</head>
-<body>
-  <div class="report-container">
-    <h1>📋 数学能力分析报告</h1>
-    <div class="info-bar">
-      <div><strong>姓名：</strong> ${name}</div>
-      <div><strong>学号：</strong> ${sid}</div>
-      <div><strong>班级：</strong> ${cls}</div>
-      <div><strong>学生学年：</strong> ${yearLabel}</div>
-      <div><strong>日期：</strong> ${dateStr}</div>
-    </div>
-    <div class="score-overview">📊 总成绩：${correct} / ${total} (正确率 ${((correct/total)*100).toFixed(1)}%)</div>
-    <h2>📈 三维能力雷达图</h2>
-    <div class="charts-container">
-      <div class="chart-card"><h3>🎯 难度等级正确率</h3><img src="${imgLevel}" alt="难度雷达图"></div>
-      <div class="chart-card"><h3>🏷️ 题型正确率</h3><img src="${imgType}" alt="题型雷达图"></div>
-      <div class="chart-card"><h3>📐 年级正确率 (Form 1-6)</h3><img src="${imgForm}" alt="年级雷达图"></div>
-    </div>
-    <h2>📝 答题明细</h2>
-    <table>
-      <thead><tr><th>题目ID</th><th>试卷年份/题号</th><th>你的答案</th><th>正确答案</th><th>结果</th></tr></thead>
-      <tbody>${detailRows}</tbody>
-    </table>
-    <h2>📊 维度分析</h2>
-    <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
-      <div style="flex:1;">
-        <h3>难度等级</h3>
-        <table><thead><tr><th>等级</th><th>正确率</th></tr></thead><tbody>${levelRows}</tbody></table>
-      </div>
-      <div style="flex:1;">
-        <h3>题型</h3>
-        <table><thead><tr><th>题型代码</th><th>正确率</th></tr></thead><tbody>${typeRows}</tbody></table>
-      </div>
-      <div style="flex:1;">
-        <h3>年级</h3>
-        <table><thead><tr><th>年级</th><th>正确率</th></tr></thead><tbody>${gradeRows}</tbody></table>
-      </div>
-    </div>
-    <div class="footer-note">⚡ 报告生成于 ${new Date().toLocaleString()}</div>
-  </div>
-</body>
-</html>`;
+      Object.entries(answerMap).forEach(([id, item]) => { const q = item.meta; detailRows += `<tr><td>${id}</td><td>${q.year} #${q.number}</td><td>${item.user || '未选'}</td><td>${item.correct}</td><td>${item.user === item.correct ? '✔' : '✘'}</td></tr>`; });
+      let levelRows = ''; stats.levelLabels.forEach((l, i) => { levelRows += `<tr><td>${l}</td><td>${stats.levelData[i].toFixed(1)}%</td></tr>`; });
+      let typeRows = ''; stats.typeLabels.forEach((l, i) => { typeRows += `<tr><td>${l}</td><td>${stats.typeData[i].toFixed(1)}%</td></tr>`; });
+      let gradeRows = ''; stats.gradeLabels.forEach((l, i) => { gradeRows += `<tr><td>${l}</td><td>${stats.gradeData[i].toFixed(1)}%</td></tr>`; });
+      const htmlContent = `<!DOCTYPE html><html lang="zh"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>📊 数学能力分析报告 - ${name} ${sid}</title><style>body { font-family: 'Inter', sans-serif; background: #f4f7fc; padding: 2rem; } .report-container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 24px; padding: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1); } h1 { color: #0a2540; border-bottom: 2px solid #2b6eb3; padding-bottom: 0.5rem; } .info-bar { display: flex; gap: 2rem; flex-wrap: wrap; background: #eef4ff; padding: 1rem 1.5rem; border-radius: 16px; margin: 1.5rem 0; } .score-overview { font-size: 1.5rem; font-weight: 700; color: #1a5d9c; } .charts-container { display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center; margin: 2rem 0; } .chart-card { flex: 1 1 300px; background: #f9fcff; border-radius: 20px; padding: 1rem; text-align: center; border: 1px solid #dbe6f0; } .chart-card img { max-width: 100%; height: auto; border-radius: 12px; } table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); } th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #e2e9f2; } th { background: #0a2540; color: white; font-weight: 600; } tr:hover { background: #f5f9ff; } .footer-note { margin-top: 2rem; text-align: right; color: #7b95af; font-size: 0.9rem; }</style></head><body><div class="report-container"><h1>📋 数学能力分析报告</h1><div class="info-bar"><div><strong>姓名：</strong> ${name}</div><div><strong>学号：</strong> ${sid}</div><div><strong>班级：</strong> ${cls}</div><div><strong>学生学年：</strong> ${yearLabel}</div><div><strong>日期：</strong> ${dateStr}</div></div><div class="score-overview">📊 总成绩：${correct} / ${total} (正确率 ${((correct/total)*100).toFixed(1)}%)</div><h2>📈 三维能力雷达图</h2><div class="charts-container"><div class="chart-card"><h3>🎯 难度等级正确率</h3><img src="${imgLevel}" alt="难度雷达图"></div><div class="chart-card"><h3>🏷️ 题型正确率</h3><img src="${imgType}" alt="题型雷达图"></div><div class="chart-card"><h3>📐 年级正确率 (Form 1-6)</h3><img src="${imgForm}" alt="年级雷达图"></div></div><h2>📝 答题明细</h2><table><thead><tr><th>题目ID</th><th>试卷年份/题号</th><th>你的答案</th><th>正确答案</th><th>结果</th></tr></thead><tbody>${detailRows}</tbody></table><h2>📊 维度分析</h2><div style="display: flex; gap: 2rem; flex-wrap: wrap;"><div style="flex:1;"><h3>难度等级</h3><table><thead><tr><th>等级</th><th>正确率</th></tr></thead><tbody>${levelRows}</tbody></table></div><div style="flex:1;"><h3>题型</h3><table><thead><tr><th>题型代码</th><th>正确率</th></tr></thead><tbody>${typeRows}</tbody></table></div><div style="flex:1;"><h3>年级</h3><table><thead><tr><th>年级</th><th>正确率</th></tr></thead><tbody>${gradeRows}</tbody></table></div></div><div class="footer-note">⚡ 报告生成于 ${new Date().toLocaleString()}</div></div></body></html>`;
       const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
       const link = document.createElement('a');
       link.download = `${name}_${sid}_${cls}_${yearLabel}_分析报告.html`;
@@ -785,29 +640,23 @@
       const answerMap = collectAnswers();
       let correctCount = 0, totalCount = Object.keys(answerMap).length;
       Object.values(answerMap).forEach(v => { if(v.user === v.correct) correctCount++; });
-      const payload = {
-        name, studentId: sid, class: cls, academicYear: yearLabel,
-        correctCount, totalCount, answers: answerMap, timestamp: new Date().toISOString()
-      };
+      const payload = { name, studentId: sid, class: cls, academicYear: yearLabel, correctCount, totalCount, answers: answerMap, timestamp: new Date().toISOString() };
       fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
         .then(() => alert('✅ 已发送提交请求（请检查 Google Sheets 确认是否写入成功）'))
         .catch(err => alert('❌ 发送失败：' + err.message));
     }
 
-    // ---------- 事件绑定 ----------
+    // 事件绑定
     modeYearlyBtn.addEventListener('click', () => setMode('yearly'));
     modeRandomBtn.addEventListener('click', () => setMode('random'));
     refreshBtn.addEventListener('click', refreshQuestions);
     yearlyYearSelect.addEventListener('change', updateStats);
-    yearStartSelect.addEventListener('change', updateStats);
-    yearEndSelect.addEventListener('change', updateStats);
     chapterFilter.addEventListener('input', updateStats);
     generateReportBtn.addEventListener('click', generateReport);
     exportHtmlReportBtn.addEventListener('click', exportHtmlReport);
     emailSubmitBtn.addEventListener('click', submitToEmail);
     googleSheetSubmitBtn.addEventListener('click', submitToGoogleSheet);
 
-    // ---------- 初始化 ----------
     function init() {
       populateStudentAcademicYear();
       extractGlobalDimensions();
