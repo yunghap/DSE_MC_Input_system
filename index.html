@@ -524,14 +524,25 @@
       scoreSummaryDiv.innerHTML = html;
     }
 
-    function downloadPNG(canvasId, fileName) {
-      const canvas = document.getElementById(canvasId);
-      if (!canvas) return;
-      const link = document.createElement('a');
-      link.download = fileName;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    }
+      function downloadPNG(canvasId, fileName) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        // 创建一个临时 canvas，先绘制白色背景，再叠上雷达图
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = canvas.height;
+        const ctx = tempCanvas.getContext('2d');
+      // 填充白色背景
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+  // 将原始雷达图绘制上去
+        ctx.drawImage(canvas, 0, 0);
+  // 使用临时 canvas 导出图片
+        const link = document.createElement('a');
+        link.download = fileName;
+        link.href = tempCanvas.toDataURL('image/png');
+        link.click();
+}
 
     function downloadExcel(answerMap, stats) {
       const name = studentName.value.trim() || '未命名';
