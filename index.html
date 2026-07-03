@@ -551,7 +551,7 @@ function downloadCombinedRadarPNG(stats) {
   if (!canvasLevel || !canvasType || !canvasForm) return;
 
   const padding = 30;
-  const titleHeight = 50;
+  const titleHeight = 60;  // 增加顶部标题区域高度
   const chartWidth = 400;
   const chartHeight = 300;
   const totalWidth = chartWidth;
@@ -566,11 +566,11 @@ function downloadCombinedRadarPNG(stats) {
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, totalWidth, totalHeight);
 
-  // 标题
+  // 主标题（放在标题区域的下部）
   ctx.fillStyle = '#0a2540';
   ctx.font = 'bold 20px "Inter", sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('', totalWidth / 2, 35);
+  ctx.fillText('📊 三维能力雷达图', totalWidth / 2, titleHeight - 20);
 
   const charts = [
     { canvas: canvasLevel, label: '🎯 难度等级正确率' },
@@ -584,11 +584,11 @@ function downloadCombinedRadarPNG(stats) {
     ctx.fillStyle = '#1e3b5c';
     ctx.font = '600 16px "Inter", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(item.label, totalWidth / 2, y - 10);
-    // 绘制雷达图（居中缩放）
+    ctx.fillText(item.label, totalWidth / 2, y + 20); // 小标题放在每个图顶部
+    // 绘制雷达图
     const scale = Math.min(chartWidth / item.canvas.width, chartHeight / item.canvas.height);
     const dx = (totalWidth - item.canvas.width * scale) / 2;
-    const dy = y;
+    const dy = y + 30; // 图开始的位置，为标题留空间
     ctx.drawImage(item.canvas, dx, dy, item.canvas.width * scale, item.canvas.height * scale);
   });
 
