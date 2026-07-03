@@ -269,7 +269,6 @@
     <div class="email-badge">📧 答案发送至: yh@ktmc.edu.hk</div>
     <div class="button-group">
       <!-- Google Sheets URL 输入框保留，但单独的提交按钮已移除 -->
-      <input type="text" id="googleSheetUrl" class="gs-url-input" placeholder="🔗 粘贴 Google Apps Script Web App URL" value="https://script.google.com/macros/s/AKfycbwMvVQ-bsxr_pccD5xWujqGxlodsk4HUjQ7ccI9CGLpHufhCgdVganpI6wRrTpyHEsw/exec">
       <button type="button" class="btn-submit" id="emailSubmitBtn">📨 提交答案到邮箱</button>
     </div>
   </div>
@@ -312,7 +311,7 @@
     const academicYear = document.getElementById('academicYear');
     const classSelect = document.getElementById('classSelect');
     const studentID = document.getElementById('studentID');
-    const googleSheetUrl = document.getElementById('googleSheetUrl');
+
 
     let currentMode = 'yearly';
     let currentQuestions = [];
@@ -562,31 +561,29 @@
     }
 
     // 修改后的提交Google表格函数，可接受现成的答案数据
-    function submitToGoogleSheet(answerMap) {
-      const url = googleSheetUrl.value.trim();
-      if (!url) {
-        console.log('未填写 Google Sheets URL，跳过提交');
-        return;
-      }
-      const name = studentName.value.trim() || '未填';
-      const sid = studentID.value || '未填';
-      const cls = classSelect.value || '未填';
-      const yearLabel = academicYear.options[academicYear.selectedIndex]?.text || '未填';
-      
-      let correctCount = 0, totalCount = answerMap ? Object.keys(answerMap).length : 0;
-      if (answerMap) {
-        Object.values(answerMap).forEach(v => { if(v.user === v.correct) correctCount++; });
-      }
-      const payload = {
-        name, studentId: sid, class: cls, academicYear: yearLabel,
-        correctCount, totalCount,
-        answers: answerMap || {},
-        timestamp: new Date().toISOString()
-      };
-      fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-        .then(() => console.log('✅ 数据已提交至 Google Sheets'))
-        .catch(err => console.error('提交失败：', err));
-    }
+function submitToGoogleSheet(answerMap) {
+  // 将你的 Google Apps Script URL 硬编码在这里
+  const url = 'https://script.google.com/macros/s/AKfycbwMvVQ-bsxr_pccD5xWujqGxlodsk4HUjQ7ccI9CGLpHufhCgdVganpI6wRrTpyHEsw/exec';
+  const name = studentName.value.trim() || '未填';
+  const sid = studentID.value || '未填';
+  const cls = classSelect.value || '未填';
+  const yearLabel = academicYear.options[academicYear.selectedIndex]?.text || '未填';
+  
+  let correctCount = 0, totalCount = answerMap ? Object.keys(answerMap).length : 0;
+  if (answerMap) {
+    Object.values(answerMap).forEach(v => { if(v.user === v.correct) correctCount++; });
+  }
+  const payload = {
+    name, studentId: sid, class: cls, academicYear: yearLabel,
+    correctCount, totalCount,
+    answers: answerMap || {},
+    timestamp: new Date().toISOString()
+  };
+  fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+    .then(() => console.log('✅ 数据已提交至 Google Sheets'))
+    .catch(err => console.error('提交失败：', err));
+}
+
 
     // 核心：生成报告 + 自动提交至 Google 表格
     function generateReport() {
