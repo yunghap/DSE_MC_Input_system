@@ -543,6 +543,68 @@
         link.click();
 }
 
+
+function downloadCombinedRadarPNG(stats) {
+  const canvasLevel = document.getElementById('radarLevel');
+  const canvasType = document.getElementById('radarType');
+  const canvasForm = document.getElementById('radarForm');
+  if (!canvasLevel || !canvasType || !canvasForm) return;
+
+  const padding = 30;
+  const titleHeight = 50;
+  const chartWidth = 400;
+  const chartHeight = 300;
+  const totalWidth = chartWidth;
+  const totalHeight = titleHeight + (chartHeight + padding) * 3;
+
+  const combinedCanvas = document.createElement('canvas');
+  combinedCanvas.width = totalWidth;
+  combinedCanvas.height = totalHeight;
+  const ctx = combinedCanvas.getContext('2d');
+
+  // 白色背景
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, totalWidth, totalHeight);
+
+  // 标题
+  ctx.fillStyle = '#0a2540';
+  ctx.font = 'bold 20px "Inter", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('📊 三维能力雷达图', totalWidth / 2, 35);
+
+  const charts = [
+    { canvas: canvasLevel, label: '🎯 难度等级正确率' },
+    { canvas: canvasType, label: '🏷️ 题型正确率' },
+    { canvas: canvasForm, label: '📐 年级正确率 (Form 1-6)' }
+  ];
+
+  charts.forEach((item, index) => {
+    const y = titleHeight + index * (chartHeight + padding);
+    // 小标题
+    ctx.fillStyle = '#1e3b5c';
+    ctx.font = '600 16px "Inter", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(item.label, totalWidth / 2, y - 10);
+    // 绘制雷达图（居中缩放）
+    const scale = Math.min(chartWidth / item.canvas.width, chartHeight / item.canvas.height);
+    const dx = (totalWidth - item.canvas.width * scale) / 2;
+    const dy = y;
+    ctx.drawImage(item.canvas, dx, dy, item.canvas.width * scale, item.canvas.height * scale);
+  });
+
+  const name = studentName.value.trim() || '未命名';
+  const sid = studentID.value.trim() || 'noID';
+  const cls = classSelect.value || '';
+  const yearLabel = academicYear.options[academicYear.selectedIndex]?.text || '';
+  const baseName = `${name}_${sid}_${cls}_${yearLabel}`;
+
+  const link = document.createElement('a');
+  link.download = `${baseName}_三维雷达图.png`;
+  link.href = combinedCanvas.toDataURL('image/png');
+  link.click();
+}
+    
+
     function downloadExcel(answerMap, stats) {
       const name = studentName.value.trim() || '未命名';
       const sid = studentID.value.trim() || 'noID';
@@ -605,9 +667,7 @@ function submitToGoogleSheet(answerMap) {
       // 下载 Excel 和 PNG
       setTimeout(() => {
         downloadExcel(answerMap, stats);
-        downloadPNG('radarLevel', `${baseName}_难度雷达图.png`);
-        downloadPNG('radarType', `${baseName}_题型雷达图.png`);
-        downloadPNG('radarForm', `${baseName}_年级雷达图.png`);
+        downloadCombinedRadarPNG(stats);  // 只下载一张合并图
       }, 200);
 
       // 同步提交到 Google 表格（使用已收集的答案）
