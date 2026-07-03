@@ -161,16 +161,6 @@
     .student-info-row { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; align-items: flex-end; margin-bottom: 0.5rem; }
     .student-info-row .filter-group { min-width: 100px; }
 
-    .gs-url-input {
-      flex: 1;
-      min-width: 300px;
-      padding: 10px 14px;
-      border: 1.5px solid #cbdae6;
-      border-radius: 16px;
-      background: white;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.9rem;
-    }
     .action-bar .button-group {
       display: flex;
       gap: 12px;
@@ -182,7 +172,7 @@
 <body>
 <div class="app-container">
   <h1>📋 Full Question Bank Practice · Export HTML Report</h1>
-  <div class="subhead">2002–2025 · 3D Radar · Email / Google Sheets Submission</div>
+  <div class="subhead">2002–2025 · 3D Radar · Google Sheets Submission</div>
   
   <!-- Mode switch -->
   <div class="mode-switch">
@@ -245,13 +235,12 @@
     <form id="answerForm"><div class="questions-panel" id="questionsContainer"></div></form>
   </div>
   
-  <!-- Report area -->
+  <!-- Report area (only Generate Analysis button) -->
   <div class="report-section">
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <h3 style="font-weight: 600;">📊 3D Ability Radar (Difficulty · Type · Grade Form 1-6)</h3>
       <div class="button-group">
         <button class="btn-secondary" id="generateReportBtn">✨ Generate Analysis + Download Excel + PNG</button>
-        <button class="btn-success" id="exportHtmlReportBtn">📄 Export HTML Report</button>
       </div>
     </div>
     <div id="analysisDisplay" style="display: none;">
@@ -266,11 +255,7 @@
   </div>
   
   <div class="action-bar">
-    <div class="email-badge">📧 Answers sent to: yh@ktmc.edu.hk</div>
-    <div class="button-group">
-      <!-- Google Sheets URL hidden from user, submit triggered by analysis button -->
-      <button type="button" class="btn-submit" id="emailSubmitBtn">📨 Submit Answers via Email</button>
-    </div>
+    <div class="email-badge">📊 Results automatically synced to Google Sheets</div>
   </div>
 
   <div class="footer-note">⚡ Yearly mode shows all questions · Random mode draws 5 questions · Click 'Generate Analysis' to auto‑sync to Google Sheets</div>
@@ -290,7 +275,7 @@
     let globalTypes = [];
     const GRADE_LABELS = ['Form 1', 'Form 2', 'Form 3', 'Form 4', 'Form 5', 'Form 6'];
 
-    // DOM elements
+    // DOM elements (removed emailSubmitBtn and exportHtmlReportBtn)
     const modeYearlyBtn = document.getElementById('modeYearlyBtn');
     const modeRandomBtn = document.getElementById('modeRandomBtn');
     const yearlyYearGroup = document.getElementById('yearlyYearGroup');
@@ -302,11 +287,9 @@
     const totalSpan = document.getElementById('totalCount');
     const statsDisplay = document.getElementById('statsDisplay');
     const generateReportBtn = document.getElementById('generateReportBtn');
-    const exportHtmlReportBtn = document.getElementById('exportHtmlReportBtn');
     const analysisDisplay = document.getElementById('analysisDisplay');
     const analysisNote = document.getElementById('analysisNote');
     const scoreSummaryDiv = document.getElementById('scoreSummaryText');
-    const emailSubmitBtn = document.getElementById('emailSubmitBtn');
     const studentName = document.getElementById('studentName');
     const academicYear = document.getElementById('academicYear');
     const classSelect = document.getElementById('classSelect');
@@ -522,22 +505,6 @@
       scoreSummaryDiv.innerHTML = html;
     }
 
-    function downloadPNG(canvasId, fileName) {
-      const canvas = document.getElementById(canvasId);
-      if (!canvas) return;
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = canvas.width;
-      tempCanvas.height = canvas.height;
-      const ctx = tempCanvas.getContext('2d');
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-      ctx.drawImage(canvas, 0, 0);
-      const link = document.createElement('a');
-      link.download = fileName;
-      link.href = tempCanvas.toDataURL('image/png');
-      link.click();
-    }
-
     function downloadCombinedRadarPNG(stats) {
       const canvasLevel = document.getElementById('radarLevel');
       const canvasType = document.getElementById('radarType');
@@ -646,12 +613,6 @@
       renderRadars(stats);
       updateSummary(answerMap, stats);
       
-      const name = studentName.value.trim() || 'unknown';
-      const sid = studentID.value.trim() || 'noID';
-      const cls = classSelect.value || '';
-      const yearLabel = academicYear.options[academicYear.selectedIndex]?.text || '';
-      const baseName = `${name}_${sid}_${cls}_${yearLabel}`;
-      
       setTimeout(() => {
         downloadExcel(answerMap, stats);
         downloadCombinedRadarPNG(stats);
@@ -660,69 +621,13 @@
       submitToGoogleSheet(answerMap);
     }
 
-    function exportHtmlReport() {
-      if(!currentQuestions.length) { alert('No questions'); return; }
-      if (!lastStats) { generateReport(); }
-      const answerMap = collectAnswers();
-      const stats = lastStats || computeFixedDimensionStats(answerMap);
-      const name = studentName.value.trim() || 'unknown';
-      const sid = studentID.value.trim() || 'noID';
-      const cls = classSelect.value || '';
-      const yearLabel = academicYear.options[academicYear.selectedIndex]?.text || '';
-      const dateStr = new Date().toLocaleDateString();
-      let correct = 0, total = Object.keys(answerMap).length;
-      Object.values(answerMap).forEach(v => { if(v.user === v.correct) correct++; });
-      const canvasLevel = document.getElementById('radarLevel');
-      const canvasType = document.getElementById('radarType');
-      const canvasForm = document.getElementById('radarForm');
-      const imgLevel = canvasLevel ? canvasLevel.toDataURL('image/png') : '';
-      const imgType = canvasType ? canvasType.toDataURL('image/png') : '';
-      const imgForm = canvasForm ? canvasForm.toDataURL('image/png') : '';
-      let detailRows = '';
-      Object.entries(answerMap).forEach(([id, item]) => { const q = item.meta; detailRows += `<tr><td>${id}</td><td>${q.year} #${q.number}</td><td>${item.user || 'No answer'}</td><td>${item.correct}</td><td>${item.user === item.correct ? '✔' : '✘'}</td></tr>`; });
-      let levelRows = ''; stats.levelLabels.forEach((l, i) => { levelRows += `<tr><td>${l}</td><td>${stats.levelData[i].toFixed(1)}%</td></tr>`; });
-      let typeRows = ''; stats.typeLabels.forEach((l, i) => { typeRows += `<tr><td>${l}</td><td>${stats.typeData[i].toFixed(1)}%</td></tr>`; });
-      let gradeRows = ''; stats.gradeLabels.forEach((l, i) => { gradeRows += `<tr><td>${l}</td><td>${stats.gradeData[i].toFixed(1)}%</td></tr>`; });
-      const htmlContent = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>📊 Math Ability Report - ${name} ${sid}</title><style>body { font-family: 'Inter', sans-serif; background: #f4f7fc; padding: 2rem; } .report-container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 24px; padding: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1); } h1 { color: #0a2540; border-bottom: 2px solid #2b6eb3; padding-bottom: 0.5rem; } .info-bar { display: flex; gap: 2rem; flex-wrap: wrap; background: #eef4ff; padding: 1rem 1.5rem; border-radius: 16px; margin: 1.5rem 0; } .score-overview { font-size: 1.5rem; font-weight: 700; color: #1a5d9c; } .charts-container { display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center; margin: 2rem 0; } .chart-card { flex: 1 1 300px; background: #f9fcff; border-radius: 20px; padding: 1rem; text-align: center; border: 1px solid #dbe6f0; } .chart-card img { max-width: 100%; height: auto; border-radius: 12px; } table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); } th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #e2e9f2; } th { background: #0a2540; color: white; font-weight: 600; } tr:hover { background: #f5f9ff; } .footer-note { margin-top: 2rem; text-align: right; color: #7b95af; font-size: 0.9rem; }</style></head><body><div class="report-container"><h1>📋 Math Ability Report</h1><div class="info-bar"><div><strong>Name:</strong> ${name}</div><div><strong>Student ID:</strong> ${sid}</div><div><strong>Class:</strong> ${cls}</div><div><strong>Academic Year:</strong> ${yearLabel}</div><div><strong>Date:</strong> ${dateStr}</div></div><div class="score-overview">📊 Total Score: ${correct} / ${total} (Accuracy ${((correct/total)*100).toFixed(1)}%)</div><h2>📈 3D Ability Radar</h2><div class="charts-container"><div class="chart-card"><h3>🎯 Difficulty Level Accuracy</h3><img src="${imgLevel}" alt="Difficulty Radar"></div><div class="chart-card"><h3>🏷️ Question Type Accuracy</h3><img src="${imgType}" alt="Type Radar"></div><div class="chart-card"><h3>📐 Grade Accuracy (Form 1-6)</h3><img src="${imgForm}" alt="Grade Radar"></div></div><h2>📝 Answer Details</h2><table><thead><tr><th>Question ID</th><th>Paper Year/#</th><th>Your Answer</th><th>Correct Answer</th><th>Result</th></tr></thead><tbody>${detailRows}</tbody></table><h2>📊 Dimension Analysis</h2><div style="display: flex; gap: 2rem; flex-wrap: wrap;"><div style="flex:1;"><h3>Difficulty</h3><table><thead><tr><th>Level</th><th>Accuracy</th></tr></thead><tbody>${levelRows}</tbody></table></div><div style="flex:1;"><h3>Type</h3><table><thead><tr><th>Code</th><th>Accuracy</th></tr></thead><tbody>${typeRows}</tbody></table></div><div style="flex:1;"><h3>Grade</h3><table><thead><tr><th>Grade</th><th>Accuracy</th></tr></thead><tbody>${gradeRows}</tbody></table></div></div><div class="footer-note">⚡ Report generated on ${new Date().toLocaleString()}</div></div></body></html>`;
-      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-      const link = document.createElement('a');
-      link.download = `${name}_${sid}_${cls}_${yearLabel}_Analysis_Report.html`;
-      link.href = URL.createObjectURL(blob);
-      link.click();
-      URL.revokeObjectURL(link.href);
-      alert('✅ HTML report downloaded, you can open it directly.');
-    }
-
-    function submitToEmail() {
-      const name = studentName.value.trim();
-      const sid = studentID.value.trim();
-      const cls = classSelect.value;
-      const yearLabel = academicYear.options[academicYear.selectedIndex]?.text || '';
-      if(!name||!sid) { alert('Please fill in name and student ID'); return; }
-      if(!currentQuestions.length) { alert('No questions to submit'); return; }
-      const form = document.createElement('form');
-      form.action = 'https://formsubmit.co/yh@ktmc.edu.hk';
-      form.method = 'POST'; form.target = '_blank';
-      form.innerHTML = `<input type="hidden" name="_subject" value="📬 Practice Submission (${currentMode})"><input type="hidden" name="_captcha" value="false"><input type="hidden" name="_template" value="table"><input type="hidden" name="Student Name" value="${name}"><input type="hidden" name="Student ID" value="${sid}"><input type="hidden" name="Class" value="${cls}"><input type="hidden" name="Academic Year" value="${yearLabel}">`;
-      const answers = collectAnswers();
-      Object.entries(answers).forEach(([id,item],idx) => {
-        const inp = document.createElement('input'); inp.type = 'hidden';
-        inp.name = `Q${idx+1} (${item.meta.year} ${item.meta.chapterMain})`; inp.value = `${item.user||'No answer'} (Correct:${item.correct})`;
-        form.appendChild(inp);
-      });
-      document.body.appendChild(form); form.submit(); document.body.removeChild(form);
-      alert('Email sent.');
-    }
-
-    // Event listeners
+    // Event listeners (only the ones still needed)
     modeYearlyBtn.addEventListener('click', () => setMode('yearly'));
     modeRandomBtn.addEventListener('click', () => setMode('random'));
     refreshBtn.addEventListener('click', refreshQuestions);
     yearlyYearSelect.addEventListener('change', updateStats);
     chapterFilter.addEventListener('input', updateStats);
     generateReportBtn.addEventListener('click', generateReport);
-    exportHtmlReportBtn.addEventListener('click', exportHtmlReport);
-    emailSubmitBtn.addEventListener('click', submitToEmail);
 
     function init() {
       populateStudentAcademicYear();
