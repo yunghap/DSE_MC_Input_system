@@ -93,12 +93,6 @@
       border-radius: 40px; font-weight: 500; cursor: pointer;
     }
     .btn-success:hover { background: #146b28; }
-    .btn-import, .btn-template, .btn-upload {
-      background: #2e5a88; color: white; border: none; padding: 10px 20px;
-      border-radius: 40px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
-    }
-    .btn-template { background: #5b6f82; }
-    .btn-upload { background: #3a7ca5; }
     .stats-info { margin: 0.5rem 0 1rem; color: #2e5a88; font-weight: 500; display: flex; justify-content: space-between; align-items: center; }
     
     .questions-wrapper {
@@ -163,18 +157,10 @@
     .email-badge { background: #eef4ff; padding: 8px 18px; border-radius: 40px; }
     .footer-note { margin-top: 1rem; color: #7b95af; text-align: right; }
     
-    .import-area {
-      display: flex; align-items: center; gap: 12px;
-      background: #ffffff; padding: 8px 16px; border-radius: 40px;
-      border: 1.5px dashed #b7cadf;
-    }
-    .import-area input[type="file"] { font-size: 0.9rem; padding: 6px 0; border: none; background: transparent; }
-    .hidden { display: none !important; }
     .button-group { display: flex; gap: 10px; align-items: center; }
     .student-info-row { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; align-items: flex-end; margin-bottom: 0.5rem; }
     .student-info-row .filter-group { min-width: 100px; }
 
-    /* Google Sheets 按钮样式 */
     .gs-url-input {
       flex: 1;
       min-width: 300px;
@@ -196,7 +182,7 @@
 <body>
 <div class="app-container">
   <h1>📋 完整题库练习 · 导出HTML报告</h1>
-  <div class="subhead">2002–2025 · 上传Word另存的HTML文件 · 三维雷达 · 邮件提交</div>
+  <div class="subhead">2002–2025 · 三维雷达 · 邮件/Google表格提交</div>
   
   <!-- 模式切换 -->
   <div class="mode-switch">
@@ -258,20 +244,6 @@
         </select>
       </div>
     </div>
-    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-      <div class="import-area">
-        <input type="file" id="fileInput" accept=".csv, .xlsx, .xls" style="min-width: 200px;">
-        <button class="btn-import" id="importBtn">📂 导入元数据</button>
-      </div>
-      <div class="import-area">
-        <input type="file" id="questionFileInput" accept=".txt, .docx, .htm, .html" style="min-width: 200px;">
-        <button class="btn-upload" id="uploadQuestionBtn">📤 上传题目(htm/html)</button>
-      </div>
-      <button class="btn-template" id="downloadTemplateBtn">📄 下载模板</button>
-    </div>
-  </div>
-  <div style="font-size:0.8rem; color:#5b6f82; margin-bottom: 1rem;">
-    💡 步骤：1. 导入元数据(CSV) 2. 用Word打开文档，另存为“网页(.htm)”，然后上传该文件。
   </div>
   
   <div class="stats-info"><span id="statsDisplay">当前题库: 共 <span id="totalCount">0</span> 题</span></div>
@@ -304,7 +276,7 @@
   <div class="action-bar">
     <div class="email-badge">📧 答案发送至: yh@ktmc.edu.hk</div>
     <div class="button-group">
-      <!-- ✅ 修改这一行：添加了您的 URL 作为默认值 -->
+      <!-- Google Sheets URL 已预填 -->
       <input type="text" id="googleSheetUrl" class="gs-url-input" placeholder="🔗 粘贴 Google Apps Script Web App URL" value="https://script.google.com/macros/s/AKfycbwMvVQ-bsxr_pccD5xWujqGxlodsk4HUjQ7ccI9CGLpHufhCgdVganpI6wRrTpyHEsw/exec">
       <button type="button" class="btn-submit" id="googleSheetSubmitBtn" style="background: #0d6e2f;">📊 提交到 Google 表格</button>
       <button type="button" class="btn-submit" id="emailSubmitBtn">📨 提交答案到邮箱</button>
@@ -323,6 +295,7 @@
 
     // ---------- 全局题库 & 映射 ----------
     let masterBank = [...DEFAULT_BANK];
+    // 注意：题目HTML内容已无法通过上传添加，如需显示题目内容，请在questionBank.js中直接填充questionHtmlMap
     const questionHtmlMap = new Map();
     
     let globalLevels = [];
@@ -350,11 +323,6 @@
     const analysisNote = document.getElementById('analysisNote');
     const scoreSummaryDiv = document.getElementById('scoreSummaryText');
     const emailSubmitBtn = document.getElementById('emailSubmitBtn');
-    const fileInput = document.getElementById('fileInput');
-    const importBtn = document.getElementById('importBtn');
-    const downloadTemplateBtn = document.getElementById('downloadTemplateBtn');
-    const questionFileInput = document.getElementById('questionFileInput');
-    const uploadQuestionBtn = document.getElementById('uploadQuestionBtn');
     const studentName = document.getElementById('studentName');
     const academicYear = document.getElementById('academicYear');
     const classSelect = document.getElementById('classSelect');
@@ -389,7 +357,6 @@
       return null;
     }
 
-    // 试卷年份下拉
     function populatePaperYearDropdowns() {
       const years = [...new Set(masterBank.map(q => q.year))].sort((a, b) => a - b);
       if (years.length === 0) return;
@@ -412,7 +379,6 @@
       academicYear.innerHTML = options;
     }
 
-    // 模式切换
     function setMode(mode) {
       currentMode = mode;
       if (mode === 'yearly') {
@@ -504,7 +470,7 @@
         if (questionHtml) {
           html += `<div class="q-content"><div class="q-text">${questionHtml}</div></div>`;
         } else {
-          html += `<div class="q-content" style="color:#999; font-style:italic;">⚠️ 尚未上传题目文本，请上传Word另存的HTML文件。</div>`;
+          html += `<div class="q-content" style="color:#999; font-style:italic;">⚠️ 题目内容未加载 (请在questionBank.js中填充questionHtmlMap)</div>`;
         }
         html += `</div>`;
       });
@@ -521,63 +487,6 @@
       analysisDisplay.style.display = 'none';
       analysisNote.style.display = 'none';
       updateStats();
-    }
-
-    // ---------- 上传题目解析 ----------
-    function parseHtmlContent(htmlContent) {
-      const blocks = htmlContent.split(/==QB==/i);
-      let count = 0;
-      blocks.forEach(block => {
-        const endIdx = block.indexOf('==QBE==');
-        if (endIdx === -1) return;
-        const qContent = block.substring(0, endIdx).trim();
-        const idMatch = qContent.match(/(\d{4})\s+Q(\d+)/i);
-        if (idMatch) {
-          const year = idMatch[1];
-          const number = idMatch[2];
-          const id = `${year}${number.padStart(2, '0')}`;
-          let cleanHtml = qContent.replace(/^.*?\d{4}\s+Q\d+.*?(\n|$)/i, '').trim();
-          questionHtmlMap.set(id, cleanHtml);
-          count++;
-        }
-      });
-      alert(`✅ 成功解析 ${count} 道题目的内容。`);
-      refreshQuestions();
-    }
-
-    function handleQuestionFileUpload(file) {
-      if (!file) return;
-      const ext = file.name.split('.').pop().toLowerCase();
-      const reader = new FileReader();
-      if (ext === 'htm' || ext === 'html') {
-        reader.onload = (e) => parseHtmlContent(e.target.result);
-        reader.readAsText(file);
-      } else if (ext === 'txt') {
-        reader.onload = (e) => {
-          const blocks = e.target.result.split(/==QB==/i);
-          let count = 0;
-          blocks.forEach(block => {
-            const endIdx = block.indexOf('==QBE==');
-            if (endIdx === -1) return;
-            const qContent = block.substring(0, endIdx).trim();
-            const idMatch = qContent.match(/(\d{4})\s+Q(\d+)/i);
-            if (idMatch) {
-              const year = idMatch[1];
-              const number = idMatch[2];
-              const id = `${year}${number.padStart(2, '0')}`;
-              let cleanText = qContent.replace(/^.*?\d{4}\s+Q\d+.*?(\n|$)/i, '').trim();
-              cleanText = cleanText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-              questionHtmlMap.set(id, `<pre style="font-family:inherit; white-space:pre-wrap;">${cleanText}</pre>`);
-              count++;
-            }
-          });
-          alert(`✅ 成功解析 ${count} 道题目的文本。`);
-          refreshQuestions();
-        };
-        reader.readAsText(file);
-      } else {
-        alert('请上传 .htm, .html 或 .txt 文件。推荐使用Word另存的 .htm 文件。');
-      }
     }
 
     // ---------- 答题与报告 ----------
@@ -885,44 +794,6 @@
         .catch(err => alert('❌ 发送失败：' + err.message));
     }
 
-    function downloadTemplate() {
-      const headers = ['id', 'year', 'number', 'answer', 'chapterMain', 'chapter2', 'level', 'typeCode', 'form'];
-      const ex1 = ['200201', '2002', '1', 'D', 'F.1 Ch 4', '', '2', 'A1', '1A4'];
-      const ex2 = ['200202', '2002', '2', 'B', 'F.4 Ch 3', '', '2', 'A3', '4A3'];
-      let csv = headers.join(',') + '\n' + ex1.join(',') + '\n' + ex2.join(',') + '\n';
-      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = '题库导入模板.csv';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(a.href);
-    }
-
-    function importBankFromFile(file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const data = e.target.result; let imported = [];
-          if(file.name.endsWith('.csv')) {
-            const rows = data.split('\n').filter(r=>r.trim()); const headers = rows[0].split(',').map(h=>h.trim());
-            for(let i=1;i<rows.length;i++) { const vals = rows[i].split(',').map(v=>v.trim()); const obj = {}; headers.forEach((h,idx)=> obj[h]=vals[idx]); imported.push(obj); }
-          } else {
-            const wb = XLSX.read(data, {type:'binary'}); imported = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
-          }
-          const newBank = imported.map(r=>({
-            id: String(r.id||''), year: parseInt(r.year)||0, number: parseInt(r.number)||0,
-            answer: String(r.answer||'').toUpperCase(), chapterMain: String(r.chapterMain||''),
-            chapter2: String(r.chapter2||''), level: parseInt(r.level)||1,
-            typeCode: String(r.typeCode||''), form: String(r.form||'')
-          })).filter(q=>q.id && q.year>0);
-          if(!newBank.length) { alert('没有有效数据'); return; }
-          masterBank = newBank;
-          extractGlobalDimensions();
-          rebuildFilters();
-          refreshQuestions();
-          alert(`✅ 成功导入 ${masterBank.length} 道题元数据。请继续上传题目HTML文件。`);
-        } catch(err) { alert('导入失败：' + err.message); }
-      };
-      if(file.name.endsWith('.csv')) reader.readAsText(file); else reader.readAsBinaryString(file);
-    }
-
     // ---------- 事件绑定 ----------
     modeYearlyBtn.addEventListener('click', () => setMode('yearly'));
     modeRandomBtn.addEventListener('click', () => setMode('random'));
@@ -935,15 +806,6 @@
     exportHtmlReportBtn.addEventListener('click', exportHtmlReport);
     emailSubmitBtn.addEventListener('click', submitToEmail);
     googleSheetSubmitBtn.addEventListener('click', submitToGoogleSheet);
-    importBtn.addEventListener('click', () => {
-      if(!fileInput.files[0]) { alert('请先选择文件'); return; }
-      importBankFromFile(fileInput.files[0]);
-    });
-    uploadQuestionBtn.addEventListener('click', () => {
-      if (!questionFileInput.files[0]) { alert('请先选择一个文件'); return; }
-      handleQuestionFileUpload(questionFileInput.files[0]);
-    });
-    downloadTemplateBtn.addEventListener('click', downloadTemplate);
 
     // ---------- 初始化 ----------
     function init() {
