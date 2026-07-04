@@ -576,7 +576,7 @@
 
     // ✅ Updated: now sends stats fields along with answer data
     function submitToGoogleSheet(answerMap, stats) {
-      const url = 'https://script.google.com/macros/s/AKfycbwMvVQ-bsxr_pccD5xWujqGxlodsk4HUjQ7ccI9CGLpHufhCgdVganpI6wRrTpyHEsw/exec';
+      const url = 'https://script.google.com/macros/s/AKfycbwae8DMqtZ_OpGkvDsv3VfTB-Dk8nEOkM4yHB-ir8dvVJXT3zmr_qcqjPfopsum68Ry/exec';
       const name = studentName.value.trim() || 'N/A';
       const sid = studentID.value || 'N/A';
       const cls = classSelect.value || 'N/A';
@@ -619,8 +619,13 @@
         timestamp: new Date().toISOString()
       };
       
-      fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-        .then(() => console.log('✅ Data submitted to Google Sheets'))
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => console.log('✅ Server response:', data))
         .catch(err => console.error('Submission failed:', err));
     }
 
