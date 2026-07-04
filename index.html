@@ -160,13 +160,6 @@
     .button-group { display: flex; gap: 10px; align-items: center; }
     .student-info-row { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; align-items: flex-end; margin-bottom: 0.5rem; }
     .student-info-row .filter-group { min-width: 100px; }
-
-    .action-bar .button-group {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
   </style>
 </head>
 <body>
@@ -235,7 +228,7 @@
     <form id="answerForm"><div class="questions-panel" id="questionsContainer"></div></form>
   </div>
   
-  <!-- Report area (only Generate Analysis button) -->
+  <!-- Report area -->
   <div class="report-section">
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <h3 style="font-weight: 600;">📊 3D Ability Radar (Difficulty · Type · Grade Form 1-6)</h3>
@@ -275,7 +268,7 @@
     let globalTypes = [];
     const GRADE_LABELS = ['Form 1', 'Form 2', 'Form 3', 'Form 4', 'Form 5', 'Form 6'];
 
-    // DOM elements (removed emailSubmitBtn and exportHtmlReportBtn)
+    // DOM elements
     const modeYearlyBtn = document.getElementById('modeYearlyBtn');
     const modeRandomBtn = document.getElementById('modeRandomBtn');
     const yearlyYearGroup = document.getElementById('yearlyYearGroup');
@@ -581,7 +574,8 @@
       XLSX.writeFile(wb, fileName);
     }
 
-    function submitToGoogleSheet(answerMap) {
+    // ✅ Updated: now sends stats fields along with answer data
+    function submitToGoogleSheet(answerMap, stats) {
       const url = 'https://script.google.com/macros/s/AKfycbwMvVQ-bsxr_pccD5xWujqGxlodsk4HUjQ7ccI9CGLpHufhCgdVganpI6wRrTpyHEsw/exec';
       const name = studentName.value.trim() || 'N/A';
       const sid = studentID.value || 'N/A';
@@ -592,12 +586,39 @@
       if (answerMap) {
         Object.values(answerMap).forEach(v => { if(v.user === v.correct) correctCount++; });
       }
+
+      // Build per‑dimension accuracy fields
+      const levelFields = {};
+      if (stats && stats.levelLabels) {
+        stats.levelLabels.forEach((label, i) => {
+          const lvNum = label.replace('Lv.', ''); // e.g. "2"
+          levelFields[`Level_${lvNum}_rate`] = stats.levelData[i].toFixed(1);
+        });
+      }
+      const typeFields = {};
+      if (stats && stats.typeLabels) {
+        stats.typeLabels.forEach((label, i) => {
+          typeFields[`Type_${label}_rate`] = stats.typeData[i].toFixed(1);
+        });
+      }
+      const gradeFields = {};
+      if (stats && stats.gradeLabels) {
+        stats.gradeLabels.forEach((label, i) => {
+          const formNum = label.replace('Form ', ''); // e.g. "1"
+          gradeFields[`Form_${formNum}_rate`] = stats.gradeData[i].toFixed(1);
+        });
+      }
+
       const payload = {
         name, studentId: sid, class: cls, academicYear: yearLabel,
         correctCount, totalCount,
+        ...levelFields,
+        ...typeFields,
+        ...gradeFields,
         answers: answerMap || {},
         timestamp: new Date().toISOString()
       };
+      
       fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
         .then(() => console.log('✅ Data submitted to Google Sheets'))
         .catch(err => console.error('Submission failed:', err));
@@ -618,10 +639,11 @@
         downloadCombinedRadarPNG(stats);
       }, 200);
 
-      submitToGoogleSheet(answerMap);
+      // Pass stats to submission
+      submitToGoogleSheet(answerMap, stats);
     }
 
-    // Event listeners (only the ones still needed)
+    // Event listeners
     modeYearlyBtn.addEventListener('click', () => setMode('yearly'));
     modeRandomBtn.addEventListener('click', () => setMode('random'));
     refreshBtn.addEventListener('click', refreshQuestions);
