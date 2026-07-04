@@ -575,59 +575,67 @@
     }
 
     // ✅ Updated: now sends stats fields along with answer data
-    function submitToGoogleSheet(answerMap, stats) {
-      const url = 'https://script.google.com/macros/s/AKfycbzuSeoxAL55K2KeYCndMSQV8amKSQdnzTTYvqa-mjzVcmdEWNOQoaBT_qgikGkhV3pV/exec';
-      const name = studentName.value.trim() || 'N/A';
-      const sid = studentID.value || 'N/A';
-      const cls = classSelect.value || 'N/A';
-      const yearLabel = academicYear.options[academicYear.selectedIndex]?.text || 'N/A';
-      
-      let correctCount = 0, totalCount = answerMap ? Object.keys(answerMap).length : 0;
-      if (answerMap) {
-        Object.values(answerMap).forEach(v => { if(v.user === v.correct) correctCount++; });
-      }
+function submitToGoogleSheet(answerMap, stats) {
+  const url = 'https://script.google.com/macros/s/你的新URL/exec'; // ← 用你的 Web App URL
+  const name = studentName.value.trim() || 'N/A';
+  const sid = studentID.value || 'N/A';
+  const cls = classSelect.value || 'N/A';
+  const yearLabel = academicYear.options[academicYear.selectedIndex]?.text || 'N/A';
 
-      // Build per‑dimension accuracy fields
-      const levelFields = {};
-      if (stats && stats.levelLabels) {
-        stats.levelLabels.forEach((label, i) => {
-          const lvNum = label.replace('Lv.', ''); // e.g. "2"
-          levelFields[`Level_${lvNum}_rate`] = stats.levelData[i].toFixed(1);
-        });
-      }
-      const typeFields = {};
-      if (stats && stats.typeLabels) {
-        stats.typeLabels.forEach((label, i) => {
-          typeFields[`Type_${label}_rate`] = stats.typeData[i].toFixed(1);
-        });
-      }
-      const gradeFields = {};
-      if (stats && stats.gradeLabels) {
-        stats.gradeLabels.forEach((label, i) => {
-          const formNum = label.replace('Form ', ''); // e.g. "1"
-          gradeFields[`Form_${formNum}_rate`] = stats.gradeData[i].toFixed(1);
-        });
-      }
+  let correctCount = 0, totalCount = answerMap ? Object.keys(answerMap).length : 0;
+  if (answerMap) {
+    Object.values(answerMap).forEach(v => { if(v.user === v.correct) correctCount++; });
+  }
 
-      const payload = {
-        name, studentId: sid, class: cls, academicYear: yearLabel,
-        correctCount, totalCount,
-        ...levelFields,
-        ...typeFields,
-        ...gradeFields,
-        answers: answerMap || {},
-        timestamp: new Date().toISOString()
-      };
-      
-      fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-        })
-        .then(response => response.json())
-        .then(data => console.log('✅ Server response:', data))
-        .catch(err => console.error('Submission failed:', err));
-    }
+  // 创建隐藏表单
+  const form = document.createElement('form');
+  form.action = url;
+  form.method = 'POST';
+  form.target = '_blank';   // 在新标签页打开（可选），不想跳转可以设为隐藏 iframe
+
+  // 添加基本字段
+  const addField = (name, value) => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = name;
+    input.value = value;
+    form.appendChild(input);
+  };
+
+  addField('name', name);
+  addField('studentId', sid);
+  addField('class', cls);
+  addField('academicYear', yearLabel);
+  addField('correctCount', correctCount);
+  addField('totalCount', totalCount);
+
+  // 添加维度统计字段
+  if (stats) {
+    stats.levelLabels.forEach((label, i) => {
+      addField('Level_' + label.replace('Lv.', '') + '_rate', stats.levelData[i].toFixed(1));
+    });
+    stats.typeLabels.forEach((label, i) => {
+      addField('Type_' + label + '_rate', stats.typeData[i].toFixed(1));
+    });
+    stats.gradeLabels.forEach((label, i) => {
+      addField('Form_' + label.replace('Form ', '') + '_rate', stats.gradeData[i].toFixed(1));
+    });
+  }
+
+  // 添加答案明细
+  Object.entries(answerMap || {}).forEach(([id, item], idx) => {
+    addField('Q' + (idx + 1) + '_id', id);
+    addField('Q' + (idx + 1) + '_user', item.user || '');
+    addField('Q' + (idx + 1) + '_correct', item.correct);
+    addField('Q' + (idx + 1) + '_year', item.meta.year);
+  });
+
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+}
+
+    
 
     function generateReport() {
       if(!currentQuestions.length) { alert('No questions'); return; }
