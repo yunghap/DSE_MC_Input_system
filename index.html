@@ -39,6 +39,52 @@
     }
     h1 { font-weight: 600; font-size: 2rem; color: #0a2540; display: flex; gap: 8px; margin-bottom: 8px; }
     .subhead { color: #5b6f82; margin-bottom: 1.5rem; border-left: 4px solid #2b6eb3; padding-left: 1rem; }
+
+    /* Dropdown styles */
+    .dropdown {
+      display: inline-block;
+      position: relative;
+      margin-bottom: 2rem;
+    }
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #1e7e34;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 40px;
+      text-decoration: none;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+    .nav-btn:hover { background: #146b28; }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: white;
+      border: 1px solid #cbdae6;
+      border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+      z-index: 10;
+      min-width: 220px;
+    }
+    .dropdown-item {
+      display: block;
+      padding: 10px 16px;
+      text-decoration: none;
+      color: #0a2540;
+      font-weight: 500;
+    }
+    .dropdown-item:hover {
+      background: #f0f5fa;
+      border-radius: 8px;
+      margin: 2px 4px;
+    }
     
     .mode-switch {
       display: flex;
@@ -166,6 +212,18 @@
 <div class="app-container">
   <h1>📋 Full Question Bank Practice · Export HTML Report</h1>
   <div class="subhead">2002–2025 · 3D Radar · Google Sheets Submission</div>
+
+  <!-- Dropdown switch button -->
+  <div class="dropdown">
+    <button class="nav-btn dropdown-toggle" type="button">
+      🔄 Switch Page ▾
+    </button>
+    <div class="dropdown-menu">
+      <a class="dropdown-item" href="index.html">📋 Practice Page</a>
+      <a class="dropdown-item" href="goal_setting.html">🎯 Goal Setting</a>
+      <a class="dropdown-item" href="#" style="color:#7b95af; pointer-events:none;">📊 Reports (Coming Soon)</a>
+    </div>
+  </div>
   
   <!-- Mode switch -->
   <div class="mode-switch">
@@ -321,8 +379,8 @@
     }
 
     function populateStudentAcademicYear() {
-      const startYear = 2026;
-      const endYear = 2028;
+      const startYear = 2024;
+      const endYear = 2027;
       let options = '';
       for (let y = startYear; y <= endYear; y++) {
         const label = `${String(y).slice(2)}-${String(y+1).slice(2)}`;
@@ -573,68 +631,61 @@
       XLSX.writeFile(wb, fileName);
     }
 
-    // ✅ Updated: now sends stats fields along with answer data
-function submitToGoogleSheet(answerMap, stats) {
-  const url = 'https://script.google.com/macros/s/AKfycbwe4AF-w5F7cHmsJOCaTflqyolwYj1Y4RQXxwIpvjClmKRlgxEbHsSH9euQ9JaF0uWE/exec'; // ← 用你的 Web App URL
-  const name = studentName.value.trim() || 'N/A';
-  const sid = studentID.value || 'N/A';
-  const cls = classSelect.value || 'N/A';
-  const yearLabel = academicYear.options[academicYear.selectedIndex]?.text || 'N/A';
+    function submitToGoogleSheet(answerMap, stats) {
+      const url = 'https://script.google.com/macros/s/AKfycbwe4AF-w5F7cHmsJOCaTflqyolwYj1Y4RQXxwIpvjClmKRlgxEbHsSH9euQ9JaF0uWE/exec';
+      const name = studentName.value.trim() || 'N/A';
+      const sid = studentID.value || 'N/A';
+      const cls = classSelect.value || 'N/A';
+      const yearLabel = academicYear.options[academicYear.selectedIndex]?.text || 'N/A';
 
-  let correctCount = 0, totalCount = answerMap ? Object.keys(answerMap).length : 0;
-  if (answerMap) {
-    Object.values(answerMap).forEach(v => { if(v.user === v.correct) correctCount++; });
-  }
+      let correctCount = 0, totalCount = answerMap ? Object.keys(answerMap).length : 0;
+      if (answerMap) {
+        Object.values(answerMap).forEach(v => { if(v.user === v.correct) correctCount++; });
+      }
 
-  // 创建隐藏表单
-  const form = document.createElement('form');
-  form.action = url;
-  form.method = 'POST';
-  form.target = '_blank';   // 在新标签页打开（可选），不想跳转可以设为隐藏 iframe
+      const form = document.createElement('form');
+      form.action = url;
+      form.method = 'POST';
+      form.target = '_blank';
 
-  // 添加基本字段
-  const addField = (name, value) => {
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = name;
-    input.value = value;
-    form.appendChild(input);
-  };
+      const addField = (name, value) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+      };
 
-  addField('name', name);
-  addField('studentId', sid);
-  addField('class', cls);
-  addField('academicYear', yearLabel);
-  addField('correctCount', correctCount);
-  addField('totalCount', totalCount);
+      addField('name', name);
+      addField('studentId', sid);
+      addField('class', cls);
+      addField('academicYear', yearLabel);
+      addField('correctCount', correctCount);
+      addField('totalCount', totalCount);
 
-  // 添加维度统计字段
-  if (stats) {
-    stats.levelLabels.forEach((label, i) => {
-      addField('Level_' + label.replace('Lv.', '') + '_rate', stats.levelData[i].toFixed(1));
-    });
-    stats.typeLabels.forEach((label, i) => {
-      addField('Type_' + label + '_rate', stats.typeData[i].toFixed(1));
-    });
-    stats.gradeLabels.forEach((label, i) => {
-      addField('Form_' + label.replace('Form ', '') + '_rate', stats.gradeData[i].toFixed(1));
-    });
-  }
+      if (stats) {
+        stats.levelLabels.forEach((label, i) => {
+          addField('Level_' + label.replace('Lv.', '') + '_rate', stats.levelData[i].toFixed(1));
+        });
+        stats.typeLabels.forEach((label, i) => {
+          addField('Type_' + label + '_rate', stats.typeData[i].toFixed(1));
+        });
+        stats.gradeLabels.forEach((label, i) => {
+          addField('Form_' + label.replace('Form ', '') + '_rate', stats.gradeData[i].toFixed(1));
+        });
+      }
 
-  // 添加答案明细
-  Object.entries(answerMap || {}).forEach(([id, item], idx) => {
-    addField('Q' + (idx + 1) + '_id', id);
-    addField('Q' + (idx + 1) + '_user', item.user || '');
-    addField('Q' + (idx + 1) + '_correct', item.correct);
-    addField('Q' + (idx + 1) + '_year', item.meta.year);
-  });
+      Object.entries(answerMap || {}).forEach(([id, item], idx) => {
+        addField('Q' + (idx + 1) + '_id', id);
+        addField('Q' + (idx + 1) + '_user', item.user || '');
+        addField('Q' + (idx + 1) + '_correct', item.correct);
+        addField('Q' + (idx + 1) + '_year', item.meta.year);
+      });
 
-  document.body.appendChild(form);
-  form.submit();
-  document.body.removeChild(form);
-}
-
-    
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
+    }
 
     function generateReport() {
       if(!currentQuestions.length) { alert('No questions'); return; }
@@ -651,7 +702,6 @@ function submitToGoogleSheet(answerMap, stats) {
         downloadCombinedRadarPNG(stats);
       }, 200);
 
-      // Pass stats to submission
       submitToGoogleSheet(answerMap, stats);
     }
 
@@ -670,6 +720,17 @@ function submitToGoogleSheet(answerMap, stats) {
       setMode('yearly');
     }
     document.addEventListener('DOMContentLoaded', init);
+
+    // Dropdown toggle (added for navigation)
+    document.querySelector('.dropdown-toggle').addEventListener('click', function(e) {
+      e.stopPropagation();
+      const menu = this.nextElementSibling;
+      menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    });
+    document.addEventListener('click', function() {
+      const menus = document.querySelectorAll('.dropdown-menu');
+      menus.forEach(m => m.style.display = 'none');
+    });
   })();
 </script>
 </body>
