@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎯 KTMC MATH DSE Goal Setting</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #f4f7fc;
+      font-family: 'Inter', sans-serif;
+      padding: 2rem 1rem;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .app-container {
+      max-width: 1100px;
+      width: 100%;
+      background: white;
+      border-radius: 28px;
+      box-shadow: 0 20px 40px -12px rgba(0,20,50,0.1);
+      padding: 2rem 2rem 2.5rem;
+      border: 1px solid #e6edf4;
+    }
+    h1 { font-weight: 600; font-size: 2rem; color: #0a2540; display: flex; gap: 8px; margin-bottom: 8px; }
+    .subhead { color: #5b6f82; margin-bottom: 1.5rem; border-left: 4px solid #2b6eb3; padding-left: 1rem; }
+
+    /* Dropdown styles */
+    .dropdown {
+      display: inline-block;
+      position: relative;
+      margin-bottom: 2rem;
+    }
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #1e7e34;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 40px;
+      text-decoration: none;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+    .nav-btn:hover { background: #146b28; }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: white;
+      border: 1px solid #cbdae6;
+      border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+      z-index: 10;
+      min-width: 220px;
+    }
+    .dropdown-item {
+      display: block;
+      padding: 10px 16px;
+      text-decoration: none;
+      color: #0a2540;
+      font-weight: 500;
+    }
+    .dropdown-item:hover {
+      background: #f0f5fa;
+      border-radius: 8px;
+      margin: 2px 4px;
+    }
+
+    /* Student info row */
+    .student-info-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem 1.5rem;
+      align-items: flex-end;
+      margin-bottom: 1.5rem;
+    }
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 150px;
+    }
+    .filter-group label {
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      color: #2c4c6e;
+    }
+    .filter-group select, .filter-group input {
+      padding: 10px 14px;
+      border: 1.5px solid #cbdae6;
+      border-radius: 16px;
+      background: white;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+    }
+
+    .two-column {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .left-column {
+      flex: 1 1 400px;
+      min-width: 260px;
+    }
+    .right-column {
+      flex: 1 1 300px;
+      min-width: 260px;
+    }
+
+    .goal-section {
+      background: #f0f5fa;
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .goal-section h3 { margin-bottom: 1rem; color: #0a2540; }
+    
+    .field-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.8rem;
+      flex-wrap: wrap;
+    }
+    .field-row label {
+      min-width: 160px;
+      font-weight: 600;
+      color: #2c4c6e;
+    }
+    .field-row input, .field-row select {
+      padding: 10px 14px;
+      border: 1.5px solid #cbdae6;
+      border-radius: 16px;
+      background: white;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      width: 100px;
+    }
+    .total-display {
+      font-weight: 700;
+      color: #1a5d9c;
+      margin-top: 0.5rem;
+      font-size: 1.1rem;
+    }
+    .cutoff-box {
+      background: #fff;
+      border: 1px solid #cbdae6;
+      border-radius: 16px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .cutoff-box h4 { margin-bottom: 0.5rem; color: #0a2540; }
+    .disclaimer {
+      font-size: 0.85rem;
+      color: #7b95af;
+      font-style: italic;
+      margin-bottom: 0.8rem;
+    }
+    .diff-positive { color: #1e7e34; font-weight: 600; }
+    .diff-negative { color: #b71c1c; font-weight: 600; }
+    .btn-submit {
+      background: #0a2540;
+      color: white;
+      padding: 16px 36px;
+      border-radius: 60px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 1rem;
+    }
+    .btn-submit:hover { background: #1e3b5c; }
+    .footer-note { margin-top: 1.5rem; color: #7b95af; text-align: right; }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <h1>🎯 KTMC MATH DSE Goal Setting</h1>
+  <div class="subhead">Set your target marks and compare with level cut‑offs.</div>
+
+  <!-- Dropdown switch button -->
+  <div class="dropdown">
+    <button class="nav-btn dropdown-toggle" type="button">
+      🔄 Switch Page ▾
+    </button>
+    <div class="dropdown-menu">
+      <a class="dropdown-item" href="practice.html">📋 Practice Page</a>
+      <a class="dropdown-item" href="goal_setting.html">🎯 Goal Setting</a>
+      <a class="dropdown-item" href="#" style="color:#7b95af; pointer-events:none;">📊 Reports (Coming Soon)</a>
+    </div>
+  </div>
+
+  <!-- Student identification fields -->
+  <div class="student-info-row">
+    <div class="filter-group">
+      <label>📅 Academic Year</label>
+      <select id="academicYear">
+        <option value="2026-2027">26-27</option>
+        <option value="2027-2028">27-28</option>
+        <option value="2028-2029">28-29</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>🏫 Class</label>
+      <select id="classSelect">
+        <option value="6A">6A</option>
+        <option value="6B">6B</option>
+        <option value="6C">6C</option>
+        <option value="6D">6D</option>
+        <option value="6E">6E</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>🔢 Student ID</label>
+      <select id="studentID">
+        <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+        <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+        <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+        <option value="10">10</option><option value="11">11</option><option value="12">12</option>
+        <option value="13">13</option><option value="14">14</option><option value="15">15</option>
+        <option value="16">16</option><option value="17">17</option><option value="18">18</option>
+        <option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+  </div>
+
+  <form id="goalForm">
+    <div class="two-column">
+      <!-- LEFT: Goal inputs -->
+      <div class="left-column">
+        <!-- Paper 1 -->
+        <div class="goal-section">
+          <h3>📄 Paper 1 (Conventional)</h3>
+          <div class="field-row">
+            <label>A1 target mark (/35)</label>
+            <input type="number" id="p1a1" min="0" max="35" step="1" value="20">
+          </div>
+          <div class="field-row">
+            <label>A2 target mark (/35)</label>
+            <input type="number" id="p1a2" min="0" max="35" step="1" value="20">
+          </div>
+          <div class="field-row">
+            <label>B target mark (/35)</label>
+            <input type="number" id="p1b" min="0" max="35" step="1" value="20">
+          </div>
+          <div class="total-display">
+            📊 Your Paper 1 Total: <span id="p1Total">60</span> / 105
+          </div>
+        </div>
+
+        <!-- Paper 2 -->
+        <div class="goal-section">
+          <h3>📝 Paper 2 (MC)</h3>
+          <div class="field-row">
+            <label>Section A correct MCs (/30)</label>
+            <input type="number" id="p2a" min="0" max="30" step="1" value="15">
+          </div>
+          <div class="field-row">
+            <label>Section B correct MCs (/15)</label>
+            <input type="number" id="p2b" min="0" max="15" step="1" value="8">
+          </div>
+          <div class="total-display">
+            📊 Your Paper 2 Total: <span id="p2Total">23</span> / 45
+          </div>
+        </div>
+
+        <!-- Overall target level -->
+        <div class="goal-section">
+          <h3>🏆 Overall Target Level</h3>
+          <div class="field-row">
+            <label>Target Level</label>
+            <select id="targetLevel">
+              <option value="5**">5**</option>
+              <option value="5*" selected>5*</option>
+              <option value="5">5</option>
+              <option value="4">4</option>
+              <option value="3">3</option>
+              <option value="2">2</option>
+              <option value="1">1</option>
+              <option value="U">U</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Cut-off comparison (dynamic) -->
+      <div class="right-column">
+        <div class="goal-section" style="background:#eef3fa;">
+          <h3>📈 Level Cut‑off Comparison</h3>
+          <p class="disclaimer">⚠️ Disclaimer: Cut‑off marks are for reference only. Actual exam boundaries may vary.</p>
+          <div id="cutoffContent">Select a target level to see required marks.</div>
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-submit" id="submitGoalBtn">💾 Save Goal (Coming Soon)</button>
+  </form>
+
+  <div class="footer-note">⚡ You can return to practice page at any time using the button above.</div>
+</div>
+
+<script>
+  // ---------- Cut‑off marks (approximate, out of 150) ----------
+  const cutoffs = {
+    "5**": { p1: 100, p2: 40, total: 140 },
+    "5*":  { p1: 92,  p2: 38, total: 130 },
+    "5":   { p1: 82,  p2: 33, total: 115 },
+    "4":   { p1: 68,  p2: 27, total: 95 },
+    "3":   { p1: 52,  p2: 23, total: 75 },
+    "2":   { p1: 38,  p2: 17, total: 55 },
+    "1":   { p1: 25,  p2: 10, total: 35 },
+    "U":   { p1: 0,   p2: 0,  total: 0 }
+  };
+
+  // DOM elements (goal inputs)
+  const p1a1 = document.getElementById('p1a1');
+  const p1a2 = document.getElementById('p1a2');
+  const p1b  = document.getElementById('p1b');
+  const p2a  = document.getElementById('p2a');
+  const p2b  = document.getElementById('p2b');
+  const targetLevel = document.getElementById('targetLevel');
+  const p1TotalSpan = document.getElementById('p1Total');
+  const p2TotalSpan = document.getElementById('p2Total');
+  const cutoffContent = document.getElementById('cutoffContent');
+
+  // Student info fields (for later submission)
+  const academicYear = document.getElementById('academicYear');
+  const classSelect = document.getElementById('classSelect');
+  const studentID = document.getElementById('studentID');
+
+  function getTotals() {
+    const a1 = parseInt(p1a1.value) || 0;
+    const a2 = parseInt(p1a2.value) || 0;
+    const b  = parseInt(p1b.value) || 0;
+    const sa = parseInt(p2a.value) || 0;
+    const sb = parseInt(p2b.value) || 0;
+    return {
+      p1: a1 + a2 + b,
+      p2: sa + sb,
+      total: a1 + a2 + b + sa + sb
+    };
+  }
+
+  function updateDisplay() {
+    const totals = getTotals();
+    p1TotalSpan.textContent = totals.p1;
+    p2TotalSpan.textContent = totals.p2;
+
+    const level = targetLevel.value;
+    const cut = cutoffs[level];
+
+    let html = '<div class="cutoff-box">';
+    html += `<p><strong>Required for Level ${level}:</strong></p>`;
+    html += `<p>📄 Paper 1 cut‑off: ${cut.p1} / 105</p>`;
+    html += `<p>📝 Paper 2 cut‑off: ${cut.p2} / 45</p>`;
+    html += `<p>🧮 Overall cut‑off: ${cut.total} / 150</p>`;
+    html += '</div>';
+
+    html += '<div class="cutoff-box" style="margin-top:1rem;">';
+    html += '<p><strong>Your Goal vs Cut‑off:</strong></p>';
+
+    const diffP1 = totals.p1 - cut.p1;
+    const diffP2 = totals.p2 - cut.p2;
+    const diffTotal = totals.total - cut.total;
+
+    const signClass = (val) => val >= 0 ? 'diff-positive' : 'diff-negative';
+    const signText = (val) => val >= 0 ? `+${val}` : val;
+
+    html += `<p>📄 Paper 1: <span class="${signClass(diffP1)}">${signText(diffP1)}</span> marks vs cut‑off</p>`;
+    html += `<p>📝 Paper 2: <span class="${signClass(diffP2)}">${signText(diffP2)}</span> marks vs cut‑off</p>`;
+    html += `<p>🧮 Overall: <span class="${signClass(diffTotal)}">${signText(diffTotal)}</span> marks vs cut‑off</p>`;
+    html += '</div>';
+
+    cutoffContent.innerHTML = html;
+  }
+
+  // Listen to all goal inputs
+  [p1a1, p1a2, p1b, p2a, p2b, targetLevel].forEach(el =>
+    el.addEventListener('input', updateDisplay)
+  );
+  targetLevel.addEventListener('change', updateDisplay);
+
+  // Initial display
+  updateDisplay();
+
+  // Placeholder submission – now includes student info
+  document.getElementById('goalForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const totals = getTotals();
+    const level = targetLevel.value;
+    const year = academicYear.value;
+    const cls = classSelect.value;
+    const sid = studentID.value;
+    console.log('Goal:', { year, cls, sid, ...totals, level });
+    alert(`🎯 Goal recorded (demo)\nStudent: ${cls} #${sid} (${year})\nPaper 1: ${totals.p1}\nPaper 2: ${totals.p2}\nOverall: ${totals.total}\nTarget Level: ${level}`);
+  });
+
+  // ---------- Dropdown toggle ----------
+  document.querySelector('.dropdown-toggle').addEventListener('click', function(e) {
+    e.stopPropagation();
+    const menu = this.nextElementSibling;
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function() {
+    const menus = document.querySelectorAll('.dropdown-menu');
+    menus.forEach(m => m.style.display = 'none');
+  });
+</script>
+</body>
+</html>
