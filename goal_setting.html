@@ -396,16 +396,47 @@
   updateDisplay();
 
   // Placeholder submission – now includes student info
-  document.getElementById('goalForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const totals = getTotals();
-    const level = targetLevel.value;
-    const year = academicYear.value;
-    const cls = classSelect.value;
-    const sid = studentID.value;
-    console.log('Goal:', { year, cls, sid, ...totals, level });
-    alert(`🎯 Goal recorded (demo)\nStudent: ${cls} #${sid} (${year})\nPaper 1: ${totals.p1}\nPaper 2: ${totals.p2}\nOverall: ${totals.total}\nTarget Level: ${level}`);
-  });
+// Real submission to Google Sheets
+document.getElementById('goalForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  const url = 'https://script.google.com/macros/s/AKfycbzcUS9U5p6zJcRaVwpqRHLuPqrmbXKmlFjCnfzj8qeQlyd6SgJcFDNkQdTkYM_BBoFy/exec';  // ← Your /exec URL
+
+  // Create hidden form (avoids CORS)
+  const form = document.createElement('form');
+  form.action = url;
+  form.method = 'POST';
+  form.target = '_blank';   // Opens in new tab; remove if you prefer silent
+
+  const addField = (name, value) => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = name;
+    input.value = value;
+    form.appendChild(input);
+  };
+
+  // Student info
+  addField('academicYear', academicYear.value);
+  addField('class', classSelect.value);
+  addField('studentID', studentID.value);
+
+  // Target marks
+  addField('p1a1', p1a1.value);
+  addField('p1a2', p1a2.value);
+  addField('p1b', p1b.value);
+  addField('p2a', p2a.value);
+  addField('p2b', p2b.value);
+
+  // Target level
+  addField('targetLevel', targetLevel.value);
+
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+
+  alert('✅ Goal submitted successfully!');
+});
 
   // ---------- Dropdown toggle ----------
   document.querySelector('.dropdown-toggle').addEventListener('click', function(e) {
