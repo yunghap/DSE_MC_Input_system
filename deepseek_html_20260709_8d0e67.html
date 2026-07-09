@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📝 KTMC MATH DSE – LQ Weak‑Topic Picker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #f4f7fc;
+      font-family: 'Inter', sans-serif;
+      padding: 2rem 1rem;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .app-container {
+      max-width: 900px;
+      width: 100%;
+      background: white;
+      border-radius: 28px;
+      box-shadow: 0 20px 40px -12px rgba(0,20,50,0.1);
+      padding: 2rem 2rem 2.5rem;
+      border: 1px solid #e6edf4;
+    }
+    h1 { font-weight: 600; font-size: 2rem; color: #0a2540; display: flex; gap: 8px; margin-bottom: 8px; }
+    .subhead { color: #5b6f82; margin-bottom: 1.5rem; border-left: 4px solid #2b6eb3; padding-left: 1rem; }
+
+    .dropdown { display: inline-block; position: relative; margin-bottom: 2rem; }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #1e7e34; color: white; padding: 10px 20px; border-radius: 40px;
+      text-decoration: none; font-weight: 500; border: none; cursor: pointer; font-size: 0.95rem;
+    }
+    .nav-btn:hover { background: #146b28; }
+    .dropdown-menu {
+      display: none; position: absolute; top: 100%; left: 0;
+      background: white; border: 1px solid #cbdae6; border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1); z-index: 10; min-width: 220px;
+    }
+    .dropdown-item {
+      display: block; padding: 10px 16px; text-decoration: none;
+      color: #0a2540; font-weight: 500;
+    }
+    .dropdown-item:hover { background: #f0f5fa; border-radius: 8px; margin: 2px 4px; }
+
+    .student-info-row {
+      display: flex; flex-wrap: wrap; gap: 1rem 1.5rem;
+      align-items: flex-end; margin-bottom: 1.5rem;
+    }
+    .filter-group { display: flex; flex-direction: column; gap: 6px; min-width: 150px; }
+    .filter-group label {
+      font-weight: 600; font-size: 0.8rem; text-transform: uppercase;
+      letter-spacing: 0.3px; color: #2c4c6e;
+    }
+    .filter-group select, .filter-group input {
+      padding: 10px 14px; border: 1.5px solid #cbdae6; border-radius: 16px;
+      background: white; font-family: 'Inter', sans-serif; font-size: 0.95rem;
+    }
+
+    .section-box {
+      background: #f0f5fa; border-radius: 20px; padding: 1.5rem; margin-bottom: 1.5rem;
+    }
+    .section-box h3 { margin-bottom: 1rem; color: #0a2540; }
+
+    .skill-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 0.8rem;
+    }
+    .skill-item {
+      display: flex; align-items: center; gap: 10px;
+      background: white; padding: 10px 14px; border-radius: 12px;
+      border: 1px solid #dbe6f0;
+    }
+    .skill-item input[type="checkbox"] { width: 20px; height: 20px; accent-color: #1a73e8; }
+    .skill-item label { font-weight: 500; color: #1e3b5c; }
+
+    .plan-box {
+      margin-top: 10px; display: none;
+    }
+    .plan-box textarea {
+      width: 100%; padding: 10px; border-radius: 12px;
+      border: 1px solid #cbdae6; font-family: 'Inter', sans-serif; resize: vertical;
+    }
+    .plan-box label {
+      font-weight: 600; font-size: 0.9rem; margin-bottom: 4px;
+      display: block; color: #2c4c6e;
+    }
+    .question-list {
+      margin-top: 6px; font-size: 0.9rem; color: #2c4c6e;
+    }
+    .question-list ul { padding-left: 20px; }
+
+    .counter {
+      background: #1a5d9c; color: white; padding: 8px 16px; border-radius: 20px;
+      font-weight: 600; font-size: 0.95rem; display: inline-block; margin-bottom: 1rem;
+    }
+
+    .btn-submit {
+      background: #0a2540; color: white; padding: 16px 36px; border-radius: 60px;
+      font-weight: 600; border: none; cursor: pointer; font-size: 1rem; margin-top: 1rem;
+    }
+    .btn-submit:hover { background: #1e3b5c; }
+    .footer-note { margin-top: 1.5rem; color: #7b95af; text-align: right; }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <h1>📝 KTMC MATH DSE – LQ Weak‑Topic Picker</h1>
+  <div class="subhead">Select up to 3 topics you feel weakest in. A plan box will appear for each.</div>
+
+  <!-- Dropdown menu -->
+  <div class="dropdown">
+    <button class="nav-btn dropdown-toggle" type="button">🔄 Switch Page ▾</button>
+    <div class="dropdown-menu">
+      <a class="dropdown-item" href="index.html">📋 Practice Page</a>
+      <a class="dropdown-item" href="goal_setting.html">🎯 Goal Setting</a>
+      <a class="dropdown-item" href="lq_skill_tracker.html">📝 LQ Skill Tracker</a>
+    </div>
+  </div>
+
+  <!-- Student ID -->
+  <div class="student-info-row">
+    <div class="filter-group"><label>👤 Name</label><input type="text" id="studentName" value=""></div>
+    <div class="filter-group"><label>📅 Academic Year</label>
+      <select id="academicYear">
+        <option value="2026-2027">26-27</option>
+        <option value="2027-2028">27-28</option>
+        <option value="2028-2029">28-29</option>
+      </select>
+    </div>
+    <div class="filter-group"><label>🏫 Class</label>
+      <select id="classSelect">
+        <option value="6A">6A</option><option value="6B">6B</option><option value="6C">6C</option>
+        <option value="6D">6D</option><option value="6E">6E</option><option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="filter-group"><label>🔢 Student ID</label>
+      <select id="studentID">
+        <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+        <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+        <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+        <option value="10">10</option><option value="11">11</option><option value="12">12</option>
+        <option value="13">13</option><option value="14">14</option><option value="15">15</option>
+        <option value="16">16</option><option value="17">17</option><option value="18">18</option>
+        <option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Selection counter -->
+  <div class="counter">Topics selected: <span id="selectedCount">0</span> / 3</div>
+
+  <!-- A1 Section -->
+  <div class="section-box">
+    <h3>📄 Section A1 – Short Questions</h3>
+    <div class="skill-grid" id="a1Grid"></div>
+  </div>
+
+  <!-- A2 Section -->
+  <div class="section-box">
+    <h3>📝 Section A2 – Longer Questions</h3>
+    <div class="skill-grid" id="a2Grid"></div>
+  </div>
+
+  <!-- B Section -->
+  <div class="section-box">
+    <h3>🧠 Section B – Advanced / Big Questions</h3>
+    <div class="skill-grid" id="bGrid"></div>
+  </div>
+
+  <button type="button" class="btn-submit" id="submitBtn">💾 Save Plans (Coming Soon)</button>
+  <div class="footer-note">⚡ You can change your selection anytime (max 3 topics).</div>
+</div>
+
+<!-- Embedded past paper data (no external file needed) -->
+<script>
+  const skillQuestionMap = {
+    "Index": [
+      { year: "2012(s)", section: "A1", question: "Q1", marks: 3 },
+      { year: "2012 PP", section: "A1", question: "Q1", marks: 3 },
+      { year: "2012", section: "A1", question: "Q1", marks: 3 },
+      { year: "2013", section: "A1", question: "Q1", marks: 3 },
+      { year: "2014", section: "A1", question: "Q1", marks: 3 },
+      { year: "2015", section: "A1", question: "Q1", marks: 3 },
+      { year: "2016", section: "A1", question: "Q1", marks: 3 },
+      { year: "2017", section: "A1", question: "Q2", marks: 3 }
+    ],
+    "Factorization": [
+      { year: "2012(s)", section: "A1", question: "Q3", marks: 3 },
+      { year: "2012 PP", section: "A1", question: "Q3", marks: 3 },
+      { year: "2012", section: "A1", question: "Q3", marks: 3 },
+      { year: "2013", section: "A1", question: "Q3", marks: 3 },
+      { year: "2014", section: "A1", question: "Q2", marks: 3 },
+      { year: "2015", section: "A1", question: "Q4", marks: 4 },
+      { year: "2016", section: "A1", question: "Q4", marks: 4 },
+      { year: "2017", section: "A1", question: "Q3", marks: 3 }
+    ],
+    "Change Subject": [
+      { year: "2012(s)", section: "A1", question: "Q2", marks: 3 },
+      { year: "2012 PP", section: "A1", question: "Q2", marks: 3 },
+      { year: "2012", section: "A1", question: "Q2", marks: 3 },
+      { year: "2013", section: "A1", question: "Q2", marks: 3 },
+      { year: "2014", section: "A1", question: "Q5", marks: 4 },
+      { year: "2015", section: "A1", question: "Q2", marks: 3 },
+      { year: "2016", section: "A1", question: "Q2", marks: 3 },
+      { year: "2017", section: "A1", question: "Q1", marks: 3 }
+    ],
+    "%": [
+      { year: "2012(s)", section: "A1", question: "Q4", marks: 4 },
+      { year: "2012 PP", section: "A1", question: "Q4", marks: 4 },
+      { year: "2012", section: "A1", question: "Q4", marks: 4 },
+      { year: "2014", section: "A1", question: "Q6", marks: 4 },
+      { year: "2015", section: "A1", question: "Q6", marks: 4 },
+      { year: "2016", section: "A1", question: "Q5", marks: 4 },
+      { year: "2017", section: "A1", question: "Q7b", marks: 2 }
+    ],
+    "Inequality": [
+      { year: "2012", section: "A1", question: "Q6", marks: 4 },
+      { year: "2013", section: "A1", question: "Q5", marks: 4 },
+      { year: "2015", section: "A1", question: "Q5", marks: 4 },
+      { year: "2016", section: "A1", question: "Q6", marks: 4 },
+      { year: "2017", section: "A1", question: "Q5", marks: 4 }
+    ],
+    "Simultaneous Equation": [
+      { year: "2012(s)", section: "A1", question: "Q5", marks: 4 },
+      { year: "2012 PP", section: "A1", question: "Q5", marks: 4 },
+      { year: "2012", section: "A1", question: "Q5", marks: 4 },
+      { year: "2013", section: "A1", question: "Q4", marks: 4 },
+      { year: "2015", section: "A1", question: "Q7", marks: 4 },
+      { year: "2017", section: "A1", question: "Q4", marks: 4 }
+    ],
+    "Rational Function": [
+      { year: "2016", section: "A1", question: "Q3", marks: 3 }
+    ],
+    "Error": [
+      { year: "2013", section: "A1", question: "Q8", marks: 5 },
+      { year: "2014", section: "A1", question: "Q3", marks: 3 },
+      { year: "2017", section: "A1", question: "Q9", marks: 5 }
+    ],
+    "Rate and Ratio": [
+      { year: "2015", section: "A2", question: "Q10", marks: 6 }
+    ],
+    "Statistics": [
+      { year: "2012(s)", section: "A1", question: "Q9", marks: 5 },
+      { year: "2012(s)", section: "A2", question: "Q14bi", marks: 7 },
+      { year: "2012 PP", section: "A1", question: "Q9", marks: 5 },
+      { year: "2012 PP", section: "A2", question: "Q13b", marks: 4 },
+      { year: "2012 PP", section: "B", question: "Q15", marks: 4 },
+      { year: "2012", section: "A1", question: "Q7", marks: 4 },
+      { year: "2012", section: "A2", question: "Q10", marks: 6 },
+      { year: "2012", section: "B", question: "Q15", marks: 3 },
+      { year: "2013", section: "A1", question: "Q9", marks: 5 },
+      { year: "2013", section: "A2", question: "Q10a", marks: 2 },
+      { year: "2013", section: "B", question: "Q15", marks: 4 },
+      { year: "2014", section: "A1", question: "Q4", marks: 3 },
+      { year: "2014", section: "A2", question: "Q11", marks: 6 },
+      { year: "2015", section: "A2", question: "Q12", marks: 7 },
+      { year: "2015", section: "B", question: "Q15", marks: 4 },
+      { year: "2016", section: "A1", question: "Q9", marks: 5 },
+      { year: "2016", section: "A2", question: "Q12", marks: 7 },
+      { year: "2016", section: "B", question: "Q16", marks: 3 },
+      { year: "2017", section: "A2", question: "Q11a", marks: 5 }
+    ],
+    "Deductive Circle": [
+      { year: "2012(s)", section: "A1", question: "Q7", marks: 4 },
+      { year: "2012 PP", section: "A1", question: "Q7", marks: 4 },
+      { year: "2012", section: "A1", question: "Q8", marks: 5 },
+      { year: "2016", section: "A1", question: "Q8", marks: 5 }
+    ],
+    "Deductive Geometry": [
+      { year: "2012 PP", section: "A2", question: "Q14a", marks: 2 },
+      { year: "2013", section: "A1", question: "Q7", marks: 4 },
+      { year: "2014", section: "A1", question: "Q9", marks: 5 },
+      { year: "2015", section: "A2", question: "Q13", marks: 7 },
+      { year: "2016", section: "A2", question: "Q13", marks: 7 },
+      { year: "2017", section: "A2", question: "Q10a", marks: 2 }
+    ],
+    "Area Volume": [
+      { year: "2012(s)", section: "A1", question: "Q6", marks: 4 },
+      { year: "2012", section: "A1", question: "Q9", marks: 5 },
+      { year: "2012", section: "A2", question: "Q12", marks: 7 },
+      { year: "2013", section: "A2", question: "Q13", marks: 4 },
+      { year: "2014", section: "A2", question: "Q14", marks: 8 },
+      { year: "2015", section: "A1", question: "Q9", marks: 5 },
+      { year: "2016", section: "A2", question: "Q11", marks: 6 },
+      { year: "2017", section: "A2", question: "Q10b", marks: 4 }
+    ],
+    "Area Volume (2)": [
+      { year: "2017", section: "A2", question: "Q12", marks: 7 }
+    ],
+    "Coordinate System": [
+      { year: "2012 PP", section: "A1", question: "Q6", marks: 4 },
+      { year: "2014", section: "A1", question: "Q6", marks: 4 },
+      { year: "2015", section: "A1", question: "Q8a", marks: 2 },
+      { year: "2015", section: "A2", question: "Q13b", marks: 4 },
+      { year: "2016", section: "A1", question: "Q7", marks: 4 },
+      { year: "2017", section: "A1", question: "Q6", marks: 4 }
+    ],
+    "Variation": [
+      { year: "2012(s)", section: "A2", question: "Q11", marks: 6 },
+      { year: "2012 PP", section: "A2", question: "Q11", marks: 6 },
+      { year: "2012", section: "A2", question: "Q11", marks: 6 },
+      { year: "2013", section: "A2", question: "Q11", marks: 6 },
+      { year: "2014", section: "A2", question: "Q13a", marks: 4 },
+      { year: "2015", section: "A2", question: "Q10", marks: 6 },
+      { year: "2016", section: "A1", question: "Q8", marks: 5 },
+      { year: "2017", section: "A1", question: "Q8", marks: 5 }
+    ],
+    "Polynomial": [
+      { year: "2012(s)", section: "A2", question: "Q10a,bi", marks: 4 },
+      { year: "2012 PP", section: "A2", question: "Q10", marks: 6 },
+      { year: "2012", section: "A2", question: "Q13a", marks: 2 },
+      { year: "2013", section: "A2", question: "Q12a", marks: 4 },
+      { year: "2014", section: "A1", question: "Q7a", marks: 5 },
+      { year: "2015", section: "A2", question: "Q11a", marks: 3 },
+      { year: "2016", section: "A2", question: "Q14a", marks: 5 },
+      { year: "2017", section: "A2", question: "Q14", marks: 8 }
+    ],
+    "Graph and Function": [
+      { year: "2012", section: "A2", question: "Q13b", marks: 5 },
+      { year: "2016", section: "B", question: "Q18b,c", marks: 4 }
+    ],
+    "Locus": [
+      { year: "2012(s)", section: "A2", question: "Q13b", marks: 6 },
+      { year: "2012 PP", section: "A1", question: "Q8", marks: 5 },
+      { year: "2013", section: "A2", question: "Q14a", marks: 5 },
+      { year: "2015", section: "A2", question: "Q12", marks: 7 },
+      { year: "2016", section: "A2", question: "Q10", marks: 5 },
+      { year: "2017", section: "A2", question: "Q13c", marks: 3 }
+    ],
+    "Equation of Circle": [
+      { year: "2012(s)", section: "B", question: "Q19", marks: 13 },
+      { year: "2012 PP", section: "A2", question: "Q14b", marks: 7 },
+      { year: "2012", section: "A2", question: "Q14bi", marks: 4 },
+      { year: "2012", section: "B", question: "Q17", marks: 7 },
+      { year: "2013", section: "A2", question: "Q14", marks: 9 },
+      { year: "2016", section: "A2", question: "Q14aii", marks: 6 },
+      { year: "2017", section: "A2", question: "Q13ab", marks: 4 }
+    ],
+    "Equation of St. Line": [
+      { year: "2012(s)", section: "A1", question: "Q8", marks: 5 },
+      { year: "2012(s)", section: "A2", question: "Q13a", marks: 3 },
+      { year: "2015", section: "A1", question: "Q8b", marks: 3 },
+      { year: "2016", section: "A2", question: "Q14a", marks: 3 }
+    ],
+    "Probability": [
+      { year: "2012(s)", section: "B", question: "Q16", marks: 5 },
+      { year: "2012 PP", section: "A2", question: "Q13a", marks: 3 },
+      { year: "2012 PP", section: "B", question: "Q16", marks: 4 },
+      { year: "2012", section: "B", question: "Q16", marks: 4 },
+      { year: "2013", section: "A2", question: "Q10b", marks: 4 },
+      { year: "2013", section: "B", question: "Q16", marks: 4 },
+      { year: "2014", section: "B", question: "Q19", marks: 13 },
+      { year: "2015", section: "A1", question: "Q3", marks: 3 },
+      { year: "2015", section: "B", question: "Q16", marks: 4 },
+      { year: "2016", section: "B", question: "Q15", marks: 3 },
+      { year: "2017", section: "A1", question: "Q7a", marks: 2 },
+      { year: "2017", section: "A2", question: "Q11b", marks: 2 }
+    ],
+    "3D Geometry": [
+      { year: "2012(s)", section: "B", question: "Q18", marks: 8 },
+      { year: "2012 PP", section: "B", question: "Q18", marks: 8 },
+      { year: "2012", section: "B", question: "Q18", marks: 8 },
+      { year: "2013", section: "A2", question: "Q12b", marks: 3 },
+      { year: "2013", section: "B", question: "Q18", marks: 8 },
+      { year: "2014", section: "B", question: "Q17", marks: 7 },
+      { year: "2015", section: "B", question: "Q19", marks: 13 },
+      { year: "2016", section: "B", question: "Q19", marks: 6 }
+    ],
+    "Quadratic Equation": [
+      { year: "2012(s)", section: "A2", question: "Q10bii", marks: 2 },
+      { year: "2012", section: "B", question: "Q17b", marks: 5 },
+      { year: "2014", section: "B", question: "Q17", marks: 6 },
+      { year: "2015", section: "A2", question: "Q11b", marks: 3 },
+      { year: "2016", section: "B", question: "Q18", marks: 9 },
+      { year: "2017", section: "A2", question: "Q14b", marks: 5 },
+      { year: "2017", section: "B", question: "Q18a", marks: 2 }
+    ],
+    "Quadratic Inequality": [
+      { year: "2015", section: "B", question: "Q16", marks: 2 }
+    ],
+    "Log": [
+      { year: "2012(s)", section: "B", question: "Q17", marks: 5 },
+      { year: "2015", section: "B", question: "Q15", marks: 3 }
+    ],
+    "AS GS": [
+      { year: "2012(s)", section: "B", question: "Q15", marks: 4 },
+      { year: "2015", section: "B", question: "Q16", marks: 2 },
+      { year: "2016", section: "B", question: "Q17a", marks: 2 },
+      { year: "2017", section: "B", question: "Q17", marks: 5 }
+    ],
+    "Linear Programming": [
+      { year: "2015", section: "B", question: "Q18", marks: 4 },
+      { year: "2016", section: "B", question: "Q17b", marks: 3 }
+    ],
+    "Complex Number": [
+      { year: "2012", section: "B", question: "Q17a", marks: 2 }
+    ],
+    "Unknowns Topic": [
+      { year: "2012(s)", section: "A2", question: "Q12", marks: 7 },
+      { year: "2012 PP", section: "A2", question: "Q12", marks: 7 }
+    ]
+  };
+</script>
+
+<script>
+  (function() {
+    const a1Topics = [
+      "Index", "Factorization", "Change Subject", "%", "Inequality",
+      "Simultaneous Equation", "Error", "Rate and Ratio",
+      "Deductive Circle", "Area Volume", "Coordinate System",
+      "Equation of St. Line", "Quadratic Equation", "Rational Function"
+    ];
+    const a2Topics = [
+      "Variation", "Polynomial", "Graph and Function", "Locus",
+      "Equation of Circle", "Area Volume (2)", "Deductive Geometry"
+    ];
+    const bTopics = [
+      "Statistics", "Probability", "3D Geometry", "Quadratic Inequality",
+      "Log", "AS GS", "Linear Programming", "Complex Number", "Unknowns Topic"
+    ];
+
+    const allTopics = [...a1Topics, ...a2Topics, ...bTopics];
+    const a1Grid = document.getElementById('a1Grid');
+    const a2Grid = document.getElementById('a2Grid');
+    const bGrid = document.getElementById('bGrid');
+    const selectedSpan = document.getElementById('selectedCount');
+
+    const topicElements = {};
+    let selectedTopics = new Set();
+
+    function buildGrid(topics, container) {
+      topics.forEach(topic => {
+        const skillDiv = document.createElement('div');
+        skillDiv.className = 'skill-item';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = 'cb_' + topic.replace(/\s+/g, '_');
+        checkbox.value = topic;
+
+        const label = document.createElement('label');
+        label.htmlFor = checkbox.id;
+        label.textContent = topic;
+
+        skillDiv.appendChild(checkbox);
+        skillDiv.appendChild(label);
+        container.appendChild(skillDiv);
+
+        const planDiv = document.createElement('div');
+        planDiv.className = 'plan-box';
+        const planLabel = document.createElement('label');
+        planLabel.textContent = `📋 Plan for "${topic}":`;
+        const textarea = document.createElement('textarea');
+        textarea.rows = 3;
+        textarea.placeholder = 'e.g., Do 10 past paper questions, review textbook Ch.5...';
+        planDiv.appendChild(planLabel);
+        planDiv.appendChild(textarea);
+
+        // Past paper question list
+        const qListDiv = document.createElement('div');
+        qListDiv.className = 'question-list';
+        const qTitle = document.createElement('strong');
+        qTitle.textContent = '📚 Related Past Paper Questions:';
+        qListDiv.appendChild(qTitle);
+        const ul = document.createElement('ul');
+        const questions = skillQuestionMap[topic] || [];
+        if (questions.length > 0) {
+          questions.forEach(q => {
+            const li = document.createElement('li');
+            li.textContent = `${q.year} ${q.section} ${q.question} (${q.marks} marks)`;
+            ul.appendChild(li);
+          });
+        } else {
+          const li = document.createElement('li');
+          li.textContent = 'No specific past questions recorded.';
+          ul.appendChild(li);
+        }
+        qListDiv.appendChild(ul);
+        planDiv.appendChild(qListDiv);
+
+        container.appendChild(planDiv);
+
+        topicElements[topic] = { checkbox, planDiv, textarea };
+
+        checkbox.addEventListener('change', function() {
+          if (this.checked) {
+            if (selectedTopics.size >= 3) {
+              this.checked = false;
+              alert('You can only select up to 3 topics. Please uncheck one first.');
+              return;
+            }
+            selectedTopics.add(topic);
+            planDiv.style.display = 'block';
+          } else {
+            selectedTopics.delete(topic);
+            planDiv.style.display = 'none';
+          }
+          updateUI();
+        });
+      });
+    }
+
+    function updateUI() {
+      selectedSpan.textContent = selectedTopics.size;
+      const maxReached = selectedTopics.size >= 3;
+      for (const topic of allTopics) {
+        const { checkbox } = topicElements[topic];
+        if (!checkbox.checked) {
+          checkbox.disabled = maxReached;
+        } else {
+          checkbox.disabled = false;
+        }
+      }
+    }
+
+    buildGrid(a1Topics, a1Grid);
+    buildGrid(a2Topics, a2Grid);
+    buildGrid(bTopics, bGrid);
+
+    document.querySelector('.dropdown-toggle').addEventListener('click', function(e) {
+      e.stopPropagation();
+      const menu = this.nextElementSibling;
+      menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    });
+    document.addEventListener('click', function() {
+      const menus = document.querySelectorAll('.dropdown-menu');
+      menus.forEach(m => m.style.display = 'none');
+    });
+
+    document.getElementById('submitBtn').addEventListener('click', function() {
+      const name = document.getElementById('studentName').value.trim() || 'N/A';
+      const year = document.getElementById('academicYear').value;
+      const cls = document.getElementById('classSelect').value;
+      const sid = document.getElementById('studentID').value;
+
+      const chosen = [];
+      selectedTopics.forEach(topic => {
+        chosen.push({
+          topic,
+          plan: topicElements[topic].textarea.value.trim()
+        });
+      });
+
+      console.log('Student:', { name, year, cls, sid });
+      console.log('Weak topics & plans:', chosen);
+      alert(`✅ Plans recorded (demo).\n${chosen.length} topics saved.`);
+    });
+  })();
+</script>
+</body>
+</html>
