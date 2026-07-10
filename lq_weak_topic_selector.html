@@ -117,7 +117,7 @@
     <div class="dropdown-menu">
       <a class="dropdown-item" href="index.html">📋 Practice Page</a>
       <a class="dropdown-item" href="goal_setting.html">🎯 Goal Setting</a>
-      <a class="dropdown-item" href="lq_weak_topic_selector.html">📝 LQ Weak‑Topic Selector</a>
+      <a class="dropdown-item" href="lq_weak_topic_selector.html">📝 LQ Skill Tracker</a>
     </div>
   </div>
 
@@ -172,6 +172,9 @@
     <div class="skill-grid" id="bGrid"></div>
   </div>
 
+  <!-- Plan boxes appear below all sections -->
+  <div id="planArea" style="margin-top: 1.5rem;"></div>
+
   <button type="button" class="btn-submit" id="submitBtn">💾 Save Plans (Coming Soon)</button>
   <div class="footer-note">⚡ You can change your selection anytime (max 3 topics).</div>
 </div>
@@ -180,119 +183,162 @@
 <script src="lq_skill_data.js"></script>
 <script>
   (function() {
-    const a1Topics = [
-      "Index", "Factorization", "Change Subject", "%", "Inequality",
-      "Simultaneous Equation", "Error", "Rate and Ratio",
-      "Deductive Circle", "Area Volume", "Coordinate System",
-      "Equation of St. Line", "Quadratic Equation", "Rational Function"
-    ];
-    const a2Topics = [
-      "Variation", "Polynomial", "Graph and Function", "Locus",
-      "Equation of Circle", "Area Volume (2)", "Deductive Geometry"
-    ];
-    const bTopics = [
-      "Statistics", "Probability", "3D Geometry", "Quadratic Inequality",
-      "Log", "AS GS", "Linear Programming", "Complex Number", "Unknowns Topic"
-    ];
+    // ---------- Gather sections per topic from skillQuestionMap ----------
+    const topicSections = {};   // key: topic name, value: Set of sections
+    const allTopics = Object.keys(skillQuestionMap).sort();
 
-    const allTopics = [...a1Topics, ...a2Topics, ...bTopics];
+    allTopics.forEach(topic => {
+      const questions = skillQuestionMap[topic] || [];
+      const sections = new Set(questions.map(q => q.section));
+      topicSections[topic] = sections;
+    });
+
+    // Build section -> topic lists (each topic can appear in multiple sections)
+    const sectionTopics = { A1: [], A2: [], B: [] };
+    allTopics.forEach(topic => {
+      const secs = topicSections[topic];
+      if (secs.has('A1')) sectionTopics.A1.push(topic);
+      if (secs.has('A2')) sectionTopics.A2.push(topic);
+      if (secs.has('B'))  sectionTopics.B.push(topic);
+    });
+
+    // DOM references
     const a1Grid = document.getElementById('a1Grid');
     const a2Grid = document.getElementById('a2Grid');
     const bGrid = document.getElementById('bGrid');
+    const planArea = document.getElementById('planArea');
     const selectedSpan = document.getElementById('selectedCount');
 
-    const topicElements = {};
+    // Storage
+    const topicCheckboxes = {};   // topic -> array of checkbox elements
+    const topicPlanDivs = {};     // topic -> planDiv element
     let selectedTopics = new Set();
 
-    function buildGrid(topics, container) {
-      topics.forEach(topic => {
-        const skillDiv = document.createElement('div');
-        skillDiv.className = 'skill-item';
+    // ---------- Create a synced checkbox for a topic ----------
+    function createCheckbox(topic, container) {
+      const skillDiv = document.createElement('div');
+      skillDiv.className = 'skill-item';
 
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.id = 'cb_' + topic.replace(/\s+/g, '_');
-        checkbox.value = topic;
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.id = 'cb_' + topic.replace(/\s+/g, '_') + '_' + Math.random().toString(36).substr(2, 5);
+      checkbox.setAttribute('data-topic', topic);
+      checkbox.value = topic;
 
-        const label = document.createElement('label');
-        label.htmlFor = checkbox.id;
-        label.textContent = topic;
+      const label = document.createElement('label');
+      label.htmlFor = checkbox.id;
+      label.textContent = topic;
 
-        skillDiv.appendChild(checkbox);
-        skillDiv.appendChild(label);
-        container.appendChild(skillDiv);
+      skillDiv.appendChild(checkbox);
+      skillDiv.appendChild(label);
+      container.appendChild(skillDiv);
 
-        const planDiv = document.createElement('div');
-        planDiv.className = 'plan-box';
-        const planLabel = document.createElement('label');
-        planLabel.textContent = `📋 Plan for "${topic}":`;
-        const textarea = document.createElement('textarea');
-        textarea.rows = 3;
-        textarea.placeholder = 'e.g., Do 10 past paper questions, review textbook Ch.5...';
-        planDiv.appendChild(planLabel);
-        planDiv.appendChild(textarea);
+      // Store checkbox
+      if (!topicCheckboxes[topic]) topicCheckboxes[topic] = [];
+      topicCheckboxes[topic].push(checkbox);
 
-        // Past paper question list
-        const qListDiv = document.createElement('div');
-        qListDiv.className = 'question-list';
-        const qTitle = document.createElement('strong');
-        qTitle.textContent = '📚 Related Past Paper Questions:';
-        qListDiv.appendChild(qTitle);
-        const ul = document.createElement('ul');
-        const questions = skillQuestionMap[topic] || [];
-        if (questions.length > 0) {
-          questions.forEach(q => {
-            const li = document.createElement('li');
-            li.textContent = `${q.year} ${q.section} ${q.question} (${q.marks} marks)`;
-            ul.appendChild(li);
-          });
-        } else {
-          const li = document.createElement('li');
-          li.textContent = 'No specific past questions recorded.';
-          ul.appendChild(li);
-        }
-        qListDiv.appendChild(ul);
-        planDiv.appendChild(qListDiv);
-
-        container.appendChild(planDiv);
-
-        topicElements[topic] = { checkbox, planDiv, textarea };
-
-        checkbox.addEventListener('change', function() {
-          if (this.checked) {
-            if (selectedTopics.size >= 3) {
-              this.checked = false;
-              alert('You can only select up to 3 topics. Please uncheck one first.');
-              return;
-            }
-            selectedTopics.add(topic);
-            planDiv.style.display = 'block';
-          } else {
-            selectedTopics.delete(topic);
-            planDiv.style.display = 'none';
+      // Event handler
+      checkbox.addEventListener('change', function() {
+        if (this.checked) {
+          if (selectedTopics.size >= 3) {
+            this.checked = false;
+            alert('You can only select up to 3 topics. Please uncheck one first.');
+            return;
           }
-          updateUI();
-        });
+          selectedTopics.add(topic);
+        } else {
+          selectedTopics.delete(topic);
+        }
+        // Sync all checkboxes for this topic
+        syncCheckboxes(topic);
+        // Show/hide plan box
+        updatePlanBox(topic);
+        updateUI();
       });
     }
 
+    // ---------- Sync checkboxes state ----------
+    function syncCheckboxes(topic) {
+      const isChecked = selectedTopics.has(topic);
+      (topicCheckboxes[topic] || []).forEach(cb => {
+        cb.checked = isChecked;
+      });
+    }
+
+    // ---------- Create plan box once per topic ----------
+    function createPlanBox(topic) {
+      if (topicPlanDivs[topic]) return;
+      const planDiv = document.createElement('div');
+      planDiv.className = 'plan-box';
+      planDiv.style.display = 'none';
+
+      const planLabel = document.createElement('label');
+      planLabel.textContent = `📋 Plan for "${topic}":`;
+      planDiv.appendChild(planLabel);
+
+      const textarea = document.createElement('textarea');
+      textarea.rows = 3;
+      textarea.placeholder = 'e.g., Do 10 past paper questions, review textbook Ch.5...';
+      planDiv.appendChild(textarea);
+
+      // Past paper question list
+      const qListDiv = document.createElement('div');
+      qListDiv.className = 'question-list';
+      const qTitle = document.createElement('strong');
+      qTitle.textContent = '📚 Related Past Paper Questions:';
+      qListDiv.appendChild(qTitle);
+      const ul = document.createElement('ul');
+      const questions = skillQuestionMap[topic] || [];
+      if (questions.length > 0) {
+        questions.forEach(q => {
+          const li = document.createElement('li');
+          li.textContent = `${q.year} ${q.section} ${q.question} (${q.marks} marks)`;
+          ul.appendChild(li);
+        });
+      } else {
+        const li = document.createElement('li');
+        li.textContent = 'No specific past questions recorded.';
+        ul.appendChild(li);
+      }
+      qListDiv.appendChild(ul);
+      planDiv.appendChild(qListDiv);
+
+      planArea.appendChild(planDiv);
+      topicPlanDivs[topic] = { planDiv, textarea };
+    }
+
+    // ---------- Toggle plan box visibility ----------
+    function updatePlanBox(topic) {
+      createPlanBox(topic);  // ensure exists
+      const entry = topicPlanDivs[topic];
+      entry.planDiv.style.display = selectedTopics.has(topic) ? 'block' : 'none';
+    }
+
+    // ---------- UI state (counter and disable unused checkboxes) ----------
     function updateUI() {
       selectedSpan.textContent = selectedTopics.size;
       const maxReached = selectedTopics.size >= 3;
       for (const topic of allTopics) {
-        const { checkbox } = topicElements[topic];
-        if (!checkbox.checked) {
-          checkbox.disabled = maxReached;
-        } else {
-          checkbox.disabled = false;
-        }
+        const cbs = topicCheckboxes[topic] || [];
+        cbs.forEach(cb => {
+          if (!cb.checked) {
+            cb.disabled = maxReached;
+          } else {
+            cb.disabled = false;  // always allow unchecking
+          }
+        });
       }
     }
 
-    buildGrid(a1Topics, a1Grid);
-    buildGrid(a2Topics, a2Grid);
-    buildGrid(bTopics, bGrid);
+    // ---------- Build all three grids ----------
+    sectionTopics.A1.forEach(topic => createCheckbox(topic, a1Grid));
+    sectionTopics.A2.forEach(topic => createCheckbox(topic, a2Grid));
+    sectionTopics.B.forEach(topic => createCheckbox(topic, bGrid));
 
+    // Pre‑create plan boxes for all topics (so they exist in the DOM)
+    allTopics.forEach(topic => createPlanBox(topic));
+
+    // ---------- Dropdown toggle ----------
     document.querySelector('.dropdown-toggle').addEventListener('click', function(e) {
       e.stopPropagation();
       const menu = this.nextElementSibling;
@@ -303,6 +349,7 @@
       menus.forEach(m => m.style.display = 'none');
     });
 
+    // ---------- Submit button (demo) ----------
     document.getElementById('submitBtn').addEventListener('click', function() {
       const name = document.getElementById('studentName').value.trim() || 'N/A';
       const year = document.getElementById('academicYear').value;
@@ -311,9 +358,10 @@
 
       const chosen = [];
       selectedTopics.forEach(topic => {
+        const entry = topicPlanDivs[topic];
         chosen.push({
           topic,
-          plan: topicElements[topic].textarea.value.trim()
+          plan: entry ? entry.textarea.value.trim() : ''
         });
       });
 
