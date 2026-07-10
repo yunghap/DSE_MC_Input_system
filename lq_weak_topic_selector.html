@@ -184,7 +184,7 @@
 <script>
   (function() {
     // ---------- Gather sections per topic from skillQuestionMap ----------
-    const topicSections = {};   // key: topic name, value: Set of sections
+    const topicSections = {};
     const allTopics = Object.keys(skillQuestionMap).sort();
 
     allTopics.forEach(topic => {
@@ -210,11 +210,11 @@
     const selectedSpan = document.getElementById('selectedCount');
 
     // Storage
-    const topicCheckboxes = {};   // topic -> array of checkbox elements
-    const topicPlanDivs = {};     // topic -> planDiv element
+    const topicCheckboxes = {};
+    const topicPlanDivs = {};
     let selectedTopics = new Set();
 
-    // ---------- Create a synced checkbox for a topic ----------
+    // Create a synced checkbox for a topic
     function createCheckbox(topic, container) {
       const skillDiv = document.createElement('div');
       skillDiv.className = 'skill-item';
@@ -233,11 +233,9 @@
       skillDiv.appendChild(label);
       container.appendChild(skillDiv);
 
-      // Store checkbox
       if (!topicCheckboxes[topic]) topicCheckboxes[topic] = [];
       topicCheckboxes[topic].push(checkbox);
 
-      // Event handler
       checkbox.addEventListener('change', function() {
         if (this.checked) {
           if (selectedTopics.size >= 3) {
@@ -249,23 +247,17 @@
         } else {
           selectedTopics.delete(topic);
         }
-        // Sync all checkboxes for this topic
         syncCheckboxes(topic);
-        // Show/hide plan box
         updatePlanBox(topic);
         updateUI();
       });
     }
 
-    // ---------- Sync checkboxes state ----------
     function syncCheckboxes(topic) {
       const isChecked = selectedTopics.has(topic);
-      (topicCheckboxes[topic] || []).forEach(cb => {
-        cb.checked = isChecked;
-      });
+      (topicCheckboxes[topic] || []).forEach(cb => { cb.checked = isChecked; });
     }
 
-    // ---------- Create plan box once per topic ----------
     function createPlanBox(topic) {
       if (topicPlanDivs[topic]) return;
       const planDiv = document.createElement('div');
@@ -281,7 +273,6 @@
       textarea.placeholder = 'e.g., Do 10 past paper questions, review textbook Ch.5...';
       planDiv.appendChild(textarea);
 
-      // Past paper question list
       const qListDiv = document.createElement('div');
       qListDiv.className = 'question-list';
       const qTitle = document.createElement('strong');
@@ -307,14 +298,12 @@
       topicPlanDivs[topic] = { planDiv, textarea };
     }
 
-    // ---------- Toggle plan box visibility ----------
     function updatePlanBox(topic) {
-      createPlanBox(topic);  // ensure exists
+      createPlanBox(topic);
       const entry = topicPlanDivs[topic];
       entry.planDiv.style.display = selectedTopics.has(topic) ? 'block' : 'none';
     }
 
-    // ---------- UI state (counter and disable unused checkboxes) ----------
     function updateUI() {
       selectedSpan.textContent = selectedTopics.size;
       const maxReached = selectedTopics.size >= 3;
@@ -324,21 +313,21 @@
           if (!cb.checked) {
             cb.disabled = maxReached;
           } else {
-            cb.disabled = false;  // always allow unchecking
+            cb.disabled = false;
           }
         });
       }
     }
 
-    // ---------- Build all three grids ----------
+    // Build grids
     sectionTopics.A1.forEach(topic => createCheckbox(topic, a1Grid));
     sectionTopics.A2.forEach(topic => createCheckbox(topic, a2Grid));
     sectionTopics.B.forEach(topic => createCheckbox(topic, bGrid));
 
-    // Pre‑create plan boxes for all topics (so they exist in the DOM)
+    // Pre-create plan boxes
     allTopics.forEach(topic => createPlanBox(topic));
 
-    // ---------- Dropdown toggle ----------
+    // Dropdown toggle
     document.querySelector('.dropdown-toggle').addEventListener('click', function(e) {
       e.stopPropagation();
       const menu = this.nextElementSibling;
@@ -349,7 +338,7 @@
       menus.forEach(m => m.style.display = 'none');
     });
 
-    // ---------- Submit button (demo) ----------
+    // Submit button (demo)
     document.getElementById('submitBtn').addEventListener('click', function() {
       const name = document.getElementById('studentName').value.trim() || 'N/A';
       const year = document.getElementById('academicYear').value;
@@ -359,17 +348,20 @@
       const chosen = [];
       selectedTopics.forEach(topic => {
         const entry = topicPlanDivs[topic];
-        chosen.push({
-          topic,
-          plan: entry ? entry.textarea.value.trim() : ''
-        });
+        chosen.push({ topic, plan: entry ? entry.textarea.value.trim() : '' });
       });
 
       console.log('Student:', { name, year, cls, sid });
       console.log('Weak topics & plans:', chosen);
       alert(`✅ Plans recorded (demo).\n${chosen.length} topics saved.`);
     });
+
+    // Debug: log the sections to verify (you can check this in console after page loads)
+    console.log('A1 topics:', sectionTopics.A1);
+    console.log('A2 topics:', sectionTopics.A2);
+    console.log('B topics:', sectionTopics.B);
   })();
 </script>
+  
 </body>
 </html>
