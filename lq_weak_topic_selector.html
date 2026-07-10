@@ -214,7 +214,7 @@
     const topicPlanDivs = {};
     let selectedTopics = new Set();
 
-    // Create a synced checkbox for a topic
+    // ---------- Create a synced checkbox for a topic ----------
     function createCheckbox(topic, container) {
       const skillDiv = document.createElement('div');
       skillDiv.className = 'skill-item';
@@ -258,6 +258,7 @@
       (topicCheckboxes[topic] || []).forEach(cb => { cb.checked = isChecked; });
     }
 
+    // ---------- Create plan box with structured fields ----------
     function createPlanBox(topic) {
       if (topicPlanDivs[topic]) return;
       const planDiv = document.createElement('div');
@@ -268,13 +269,59 @@
       planLabel.textContent = `📋 Plan for "${topic}":`;
       planDiv.appendChild(planLabel);
 
-      const textarea = document.createElement('textarea');
-      textarea.rows = 3;
-      textarea.placeholder = 'e.g., Do 10 past paper questions, review textbook Ch.5...';
-      planDiv.appendChild(textarea);
+      // Structured inputs container
+      const fieldsDiv = document.createElement('div');
+      fieldsDiv.style.display = 'flex';
+      fieldsDiv.style.flexWrap = 'wrap';
+      fieldsDiv.style.gap = '1rem';
+      fieldsDiv.style.marginTop = '0.5rem';
 
+      // Number of questions
+      const qGroup = document.createElement('div');
+      qGroup.innerHTML = '<label style="font-size:0.85rem; font-weight:600;">📖 Questions to do:</label>';
+      const qInput = document.createElement('input');
+      qInput.type = 'number';
+      qInput.min = '0';
+      qInput.value = '0';
+      qInput.style.width = '80px';
+      qInput.style.padding = '6px';
+      qInput.style.borderRadius = '8px';
+      qInput.style.border = '1px solid #cbdae6';
+      qGroup.appendChild(qInput);
+      fieldsDiv.appendChild(qGroup);
+
+      // Number of hours
+      const hGroup = document.createElement('div');
+      hGroup.innerHTML = '<label style="font-size:0.85rem; font-weight:600;">⏱️ Hours to study:</label>';
+      const hInput = document.createElement('input');
+      hInput.type = 'number';
+      hInput.min = '0';
+      hInput.step = '0.5';
+      hInput.value = '0';
+      hInput.style.width = '80px';
+      hInput.style.padding = '6px';
+      hInput.style.borderRadius = '8px';
+      hInput.style.border = '1px solid #cbdae6';
+      hGroup.appendChild(hInput);
+      fieldsDiv.appendChild(hGroup);
+
+      // Deadline
+      const dGroup = document.createElement('div');
+      dGroup.innerHTML = '<label style="font-size:0.85rem; font-weight:600;">📅 Deadline:</label>';
+      const dInput = document.createElement('input');
+      dInput.type = 'date';
+      dInput.style.padding = '6px';
+      dInput.style.borderRadius = '8px';
+      dInput.style.border = '1px solid #cbdae6';
+      dGroup.appendChild(dInput);
+      fieldsDiv.appendChild(dGroup);
+
+      planDiv.appendChild(fieldsDiv);
+
+      // Past paper question list
       const qListDiv = document.createElement('div');
       qListDiv.className = 'question-list';
+      qListDiv.style.marginTop = '1rem';
       const qTitle = document.createElement('strong');
       qTitle.textContent = '📚 Related Past Paper Questions:';
       qListDiv.appendChild(qTitle);
@@ -295,7 +342,7 @@
       planDiv.appendChild(qListDiv);
 
       planArea.appendChild(planDiv);
-      topicPlanDivs[topic] = { planDiv, textarea };
+      topicPlanDivs[topic] = { planDiv, qInput, hInput, dInput };
     }
 
     function updatePlanBox(topic) {
@@ -338,7 +385,7 @@
       menus.forEach(m => m.style.display = 'none');
     });
 
-    // Submit button (demo)
+    // Submit button – now collects structured data
     document.getElementById('submitBtn').addEventListener('click', function() {
       const name = document.getElementById('studentName').value.trim() || 'N/A';
       const year = document.getElementById('academicYear').value;
@@ -348,15 +395,20 @@
       const chosen = [];
       selectedTopics.forEach(topic => {
         const entry = topicPlanDivs[topic];
-        chosen.push({ topic, plan: entry ? entry.textarea.value.trim() : '' });
+        chosen.push({
+          topic,
+          questions: entry ? entry.qInput.value : 0,
+          hours: entry ? entry.hInput.value : 0,
+          deadline: entry ? entry.dInput.value : ''
+        });
       });
 
       console.log('Student:', { name, year, cls, sid });
       console.log('Weak topics & plans:', chosen);
-      alert(`✅ Plans recorded (demo).\n${chosen.length} topics saved.`);
+      alert(`✅ Plans recorded (demo).\n${chosen.length} topic(s) saved.`);
     });
 
-    // Debug: log the sections to verify (you can check this in console after page loads)
+    // Debug
     console.log('A1 topics:', sectionTopics.A1);
     console.log('A2 topics:', sectionTopics.A2);
     console.log('B topics:', sectionTopics.B);
