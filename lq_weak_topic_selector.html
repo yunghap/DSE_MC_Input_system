@@ -387,27 +387,51 @@
 
     // Submit button – now collects structured data
     document.getElementById('submitBtn').addEventListener('click', function() {
-      const name = document.getElementById('studentName').value.trim() || 'N/A';
-      const year = document.getElementById('academicYear').value;
-      const cls = document.getElementById('classSelect').value;
-      const sid = document.getElementById('studentID').value;
+  const url = 'https://script.google.com/macros/s/AKfycbwr4LW2A36plPAnzd7jtm4RYTuoDw5firA0vW43WxtZc3msMsPYIlOIC8RDmeBwLKxU/exec';   // ← paste your Web App URL here
+  const name = document.getElementById('studentName').value.trim() || 'N/A';
+  const year = document.getElementById('academicYear').value;
+  const cls = document.getElementById('classSelect').value;
+  const sid = document.getElementById('studentID').value;
 
-      const chosen = [];
-      selectedTopics.forEach(topic => {
-        const entry = topicPlanDivs[topic];
-        chosen.push({
-          topic,
-          questions: entry ? entry.qInput.value : 0,
-          hours: entry ? entry.hInput.value : 0,
-          deadline: entry ? entry.dInput.value : ''
-        });
-      });
+  // Check that at least one topic is selected
+  if (selectedTopics.size === 0) {
+    alert('Please select at least one weak topic.');
+    return;
+  }
 
-      console.log('Student:', { name, year, cls, sid });
-      console.log('Weak topics & plans:', chosen);
-      alert(`✅ Plans recorded (demo).\n${chosen.length} topic(s) saved.`);
-    });
+  // Submit each topic as a separate row
+  selectedTopics.forEach(topic => {
+    const entry = topicPlanDivs[topic];
 
+    const form = document.createElement('form');
+    form.action = url;
+    form.method = 'POST';
+    form.target = '_blank';   // opens response in new tab (optional)
+
+    const addField = (name, value) => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = name;
+      input.value = value;
+      form.appendChild(input);
+    };
+
+    addField('name', name);
+    addField('academicYear', year);
+    addField('class', cls);
+    addField('studentID', sid);
+    addField('topic', topic);
+    addField('questions', entry.qInput.value);
+    addField('hours', entry.hInput.value);
+    addField('deadline', entry.dInput.value);
+
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+  });
+
+  alert(`✅ Plans saved! ${selectedTopics.size} topic(s) submitted.`);
+});
     // Debug
     console.log('A1 topics:', sectionTopics.A1);
     console.log('A2 topics:', sectionTopics.A2);
