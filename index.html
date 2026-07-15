@@ -389,21 +389,20 @@
       academicYear.innerHTML = options;
     }
 
-    function setMode(mode) {
-      currentMode = mode;
-      if (mode === 'yearly') {
-        modeYearlyBtn.classList.add('active');
-        modeRandomBtn.classList.remove('active');
-        yearlyYearGroup.classList.remove('hidden');
-        refreshBtn.textContent = '📋 Generate Full Paper';
-      } else {
-        modeRandomBtn.classList.add('active');
-        modeYearlyBtn.classList.remove('active');
-        yearlyYearGroup.classList.add('hidden');
-        refreshBtn.textContent = '🎲 Random Draw 5 Questions';
-      }
-      refreshQuestions();
-    }
+function setMode(mode) {
+  currentMode = mode;
+  if (mode === 'yearly') {
+    modeYearlyBtn.classList.add('active');
+    modeRandomBtn.classList.remove('active');
+    refreshBtn.textContent = '📋 Generate Full Paper';
+  } else {
+    modeRandomBtn.classList.add('active');
+    modeYearlyBtn.classList.remove('active');
+    refreshBtn.textContent = '🎲 Random Draw 5 Questions';
+  }
+  // Yearly dropdown is always visible (no class toggling needed)
+  refreshQuestions();
+}
 
     function rebuildFilters() {
       populatePaperYearDropdowns();
@@ -412,32 +411,31 @@
       updateStats();
     }
 
-    function getFilteredBank() {
-      const query = chapterFilter.value.trim().toLowerCase();
-      let filtered = masterBank;
-      if (currentMode === 'yearly') {
-        const selectedYear = parseInt(yearlyYearSelect.value) || 0;
-        filtered = filtered.filter(q => q.year === selectedYear);
-      }
-      if (query) {
-        filtered = filtered.filter(q => 
-          (q.chapterMain || '').toLowerCase().includes(query) || 
-          (q.chapter2 || '').toLowerCase().includes(query)
-        );
-      }
-      return filtered;
-    }
+function getFilteredBank() {
+  const query = chapterFilter.value.trim().toLowerCase();
+  let filtered = masterBank;
+  // Always filter by the selected year (dropdown is always visible now)
+  const selectedYear = parseInt(yearlyYearSelect.value) || 0;
+  filtered = filtered.filter(q => q.year === selectedYear);
+  if (query) {
+    filtered = filtered.filter(q => 
+      (q.chapterMain || '').toLowerCase().includes(query) || 
+      (q.chapter2 || '').toLowerCase().includes(query)
+    );
+  }
+  return filtered;
+}
 
-    function updateStats() {
-      const filtered = getFilteredBank();
-      totalSpan.textContent = filtered.length;
-      if (currentMode === 'yearly') {
-        const yearVal = yearlyYearSelect.value || '?';
-        statsDisplay.innerHTML = `📅 Yearly Full Paper · ${yearVal} · Total ${filtered.length} questions`;
-      } else {
-        statsDisplay.innerHTML = `🎲 Random Draw · All years · Bank total ${filtered.length} questions (5 per draw)`;
-      }
-    }
+function updateStats() {
+  const filtered = getFilteredBank();
+  totalSpan.textContent = filtered.length;
+  const yearVal = yearlyYearSelect.value || '?';
+  if (currentMode === 'yearly') {
+    statsDisplay.innerHTML = `📅 Yearly Full Paper · ${yearVal} · Total ${filtered.length} questions`;
+  } else {
+    statsDisplay.innerHTML = `🎲 Random Draw · Year ${yearVal} · Bank total ${filtered.length} questions (5 per draw)`;
+  }
+}
 
     function selectQuestions(bank) {
       if (currentMode === 'yearly') {
