@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Level 3 MCQ – 35 Questions</title>
+    <title>Level 3 MC Training – 35 Questions</title>
     <style>
         /* ───────────── Reset & Base ───────────── */
         * {
@@ -244,12 +244,6 @@
             transform: translateY(-2px);
         }
 
-        .btn:disabled {
-            opacity: 0.5;
-            pointer-events: none;
-            transform: none !important;
-        }
-
         /* ───────────── Results ───────────── */
         .result-box {
             margin-top: 28px;
@@ -282,10 +276,6 @@
             font-weight: 800;
             color: #0b1e3a;
             line-height: 1.2;
-        }
-
-        .result-box .score span {
-            color: #3b7cff;
         }
 
         .result-box .message {
@@ -392,297 +382,269 @@
 </head>
 <body>
 
-    <div class="container" id="app">
+<div class="container" id="app">
 
-        <!-- ─── Header ─── -->
-        <h1>
-            📝 Level 3 · MCQ
-            <small>35 Questions</small>
-        </h1>
-        <div class="subhead">
-            Select the correct answer for each question. You need <strong>at least 50%</strong> correct to pass.
-        </div>
-
-        <!-- ─── Student Info (只保留 Class 和 Class Number，移除 Status) ─── -->
-        <div class="student-info">
-            <div class="field">
-                <label for="studentClass">Class</label>
-                <input type="text" id="studentClass" placeholder="e.g. 3A" maxlength="10" />
-            </div>
-            <div class="field">
-                <label for="classNumber">Class No.</label>
-                <input type="text" id="classNumber" placeholder="e.g. 12" maxlength="10" />
-            </div>
-            <!-- 原来的 Status 字段已删除 -->
-        </div>
-
-        <!-- ─── Questions ─── -->
-        <div class="questions-section" id="questionsContainer">
-            <!-- injected by JS -->
-        </div>
-
-        <!-- ─── Actions ─── -->
-        <div class="actions">
-            <button class="btn btn-primary" id="submitBtn">✅ Submit Answers</button>
-            <button class="btn btn-secondary" id="resetBtn">⟳ Reset All</button>
-        </div>
-
-        <!-- ─── Result Box ─── -->
-        <div class="result-box" id="resultBox">
-            <div class="score" id="scoreDisplay">0 / 0</div>
-            <div class="message" id="resultMessage">Great job!</div>
-            <div class="sub-message" id="resultSub"></div>
-            <div class="retry-area" id="retryArea" style="display:none;">
-                <button class="btn btn-warning" id="retryBtn">🔄 Try Again</button>
-            </div>
-        </div>
-
+    <!-- ─── Header ─── -->
+    <h1>
+        📝 Level 3 · MC Training
+        <small>35 Questions</small>
+    </h1>
+    <div class="subhead">
+        Select the correct answer for each question. You need <strong>at least 50%</strong> correct to pass.
     </div>
 
-    <script>
-        (function() {
-            'use strict';
+    <!-- ─── Student Info ─── -->
+    <div class="student-info">
+        <div class="field">
+            <label for="studentClass">Class</label>
+            <input type="text" id="studentClass" placeholder="e.g. 3A" maxlength="10" />
+        </div>
+        <div class="field">
+            <label for="classNumber">Class No.</label>
+            <input type="text" id="classNumber" placeholder="e.g. 12" maxlength="10" />
+        </div>
+    </div>
 
-            // ─── Correct Answers (35 questions) ───
-            const CORRECT = {
-                1: 'A',
-                2: 'D',
-                3: 'A',
-                4: 'B',
-                5: 'A',
-                6: 'C',
-                7: 'A',
-                8: 'A',
-                9: 'B',
-                10: 'D',
-                11: 'C',
-                12: 'D',
-                13: 'B',
-                14: 'B',
-                15: 'C',
-                16: 'C',
-                17: 'D',
-                18: 'A',
-                19: 'B',
-                20: 'D',
-                21: 'C',
-                22: 'D',
-                23: 'B',
-                24: 'B',
-                25: 'D',
-                26: 'A',
-                27: 'C',
-                28: 'A',
-                29: 'A',
-                30: 'B',
-                31: 'A',
-                32: 'B',
-                33: 'D',
-                34: 'D',
-                35: 'A'
+    <!-- ─── Questions ─── -->
+    <div class="questions-section" id="questionsContainer">
+        <!-- injected by JS -->
+    </div>
+
+    <!-- ─── Actions ─── -->
+    <div class="actions">
+        <button class="btn btn-primary" id="submitBtn">✅ Submit & Upload</button>
+        <button class="btn btn-secondary" id="resetBtn">⟳ Reset All</button>
+    </div>
+
+    <!-- ─── Result Box ─── -->
+    <div class="result-box" id="resultBox">
+        <div class="score" id="scoreDisplay">0 / 0</div>
+        <div class="message" id="resultMessage">Great job!</div>
+        <div class="sub-message" id="resultSub"></div>
+        <div class="retry-area" id="retryArea" style="display:none;">
+            <button class="btn btn-warning" id="retryBtn">🔄 Try Again</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    (function() {
+        'use strict';
+
+        // ─── 正确的答案（35题）───
+        const CORRECT = {
+            1: 'A', 2: 'D', 3: 'A', 4: 'B', 5: 'A',
+            6: 'C', 7: 'A', 8: 'A', 9: 'B', 10: 'D',
+            11: 'C', 12: 'D', 13: 'B', 14: 'B', 15: 'C',
+            16: 'C', 17: 'D', 18: 'A', 19: 'B', 20: 'D',
+            21: 'C', 22: 'D', 23: 'B', 24: 'B', 25: 'D',
+            26: 'A', 27: 'C', 28: 'A', 29: 'A', 30: 'B',
+            31: 'A', 32: 'B', 33: 'D', 34: 'D', 35: 'A'
+        };
+        const TOTAL = 35;
+
+        // ─── DOM 引用 ───
+        const container = document.getElementById('questionsContainer');
+        const submitBtn = document.getElementById('submitBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const retryBtn = document.getElementById('retryBtn');
+        const resultBox = document.getElementById('resultBox');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const resultMessage = document.getElementById('resultMessage');
+        const resultSub = document.getElementById('resultSub');
+        const retryArea = document.getElementById('retryArea');
+        const classInput = document.getElementById('studentClass');
+        const numberInput = document.getElementById('classNumber');
+
+        // ─── 生成题目 ───
+        function buildQuestions() {
+            let html = '';
+            for (let i = 1; i <= TOTAL; i++) {
+                html += `
+                    <div class="question-item" data-q="${i}">
+                        <div>
+                            <span class="question-number">Q${i}.</span>
+                            <span class="question-text">Choose the correct option:</span>
+                        </div>
+                        <div class="options" data-q="${i}">
+                            <label><input type="radio" name="q${i}" value="A" /> A</label>
+                            <label><input type="radio" name="q${i}" value="B" /> B</label>
+                            <label><input type="radio" name="q${i}" value="C" /> C</label>
+                            <label><input type="radio" name="q${i}" value="D" /> D</label>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        // ─── 获取已选答案 ───
+        function getSelectedAnswers() {
+            const selected = {};
+            for (let i = 1; i <= TOTAL; i++) {
+                const radios = document.querySelectorAll(`input[name="q${i}"]`);
+                let value = null;
+                for (const r of radios) {
+                    if (r.checked) {
+                        value = r.value;
+                        break;
+                    }
+                }
+                if (value !== null) {
+                    selected[i] = value;
+                }
+            }
+            return selected;
+        }
+
+        // ─── 统计正确数 ───
+        function countCorrect(selected) {
+            let correct = 0;
+            for (const qNum in selected) {
+                if (selected[qNum] === CORRECT[qNum]) {
+                    correct++;
+                }
+            }
+            return correct;
+        }
+
+        // ─── 提交数据到 Google Sheets ───
+        function submitToGoogleSheet(selected, correctCount, answeredCount) {
+            const cls = classInput.value.trim() || 'N/A';
+            const num = numberInput.value.trim() || 'N/A';
+
+            // 这里填写您部署的 Apps Script Web App URL（稍后教您获取）
+            const url = 'https://script.google.com/macros/s/你的部署ID/exec';  // ← 替换成您的URL
+
+            const form = document.createElement('form');
+            form.action = url;
+            form.method = 'POST';
+            form.target = '_blank';  // 在新标签页打开，以免影响当前页面
+
+            const addField = (name, value) => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name;
+                input.value = value;
+                form.appendChild(input);
             };
 
-            const TOTAL = 35;
-            // 不再强制全部作答
+            // --- 基本信息 ---
+            addField('class', cls);
+            addField('classNumber', num);
+            addField('correctCount', correctCount);
+            addField('answeredCount', answeredCount);
+            addField('sheetName', 'Lv3');   // ← 指定写入的工作表名称
 
-            // ─── DOM refs ───
-            const container = document.getElementById('questionsContainer');
-            const submitBtn = document.getElementById('submitBtn');
-            const resetBtn = document.getElementById('resetBtn');
-            const retryBtn = document.getElementById('retryBtn');
-            const resultBox = document.getElementById('resultBox');
-            const scoreDisplay = document.getElementById('scoreDisplay');
-            const resultMessage = document.getElementById('resultMessage');
-            const resultSub = document.getElementById('resultSub');
-            const retryArea = document.getElementById('retryArea');
-
-            const classInput = document.getElementById('studentClass');
-            const numberInput = document.getElementById('classNumber');
-
-            // ─── Build questions ───
-            function buildQuestions() {
-                let html = '';
-                for (let i = 1; i <= TOTAL; i++) {
-                    const qNum = i;
-                    html += `
-                        <div class="question-item" data-q="${qNum}">
-                            <div>
-                                <span class="question-number">Q${qNum}.</span>
-                                <span class="question-text">Choose the correct option:</span>
-                            </div>
-                            <div class="options" data-q="${qNum}">
-                                <label><input type="radio" name="q${qNum}" value="A" /> A</label>
-                                <label><input type="radio" name="q${qNum}" value="B" /> B</label>
-                                <label><input type="radio" name="q${qNum}" value="C" /> C</label>
-                                <label><input type="radio" name="q${qNum}" value="D" /> D</label>
-                            </div>
-                        </div>
-                    `;
-                }
-                container.innerHTML = html;
+            // --- 每题答案 ---
+            for (let q = 1; q <= TOTAL; q++) {
+                const userAns = selected[q] || '';
+                const correctAns = CORRECT[q] || '';
+                addField(`Q${q}_user`, userAns);
+                addField(`Q${q}_correct`, correctAns);
             }
 
-            // ─── Get selected answers ───
-            function getSelectedAnswers() {
-                const selected = {};
-                for (let i = 1; i <= TOTAL; i++) {
-                    const radios = document.querySelectorAll(`input[name="q${i}"]`);
-                    let value = null;
-                    for (const r of radios) {
-                        if (r.checked) {
-                            value = r.value;
-                            break;
-                        }
-                    }
-                    // 只记录有选中的题目
-                    if (value !== null) {
-                        selected[i] = value;
-                    }
-                }
-                return selected;
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+        }
+
+        // ─── 显示结果并上传 ───
+        function handleSubmit() {
+            // 验证学生信息
+            const cls = classInput.value.trim();
+            const num = numberInput.value.trim();
+            if (!cls || !num) {
+                alert('Please enter your Class and Class Number before submitting.');
+                classInput.focus();
+                return;
             }
 
-            // ─── 不再需要 allAnswered() 函数 ───
+            const selected = getSelectedAnswers();
+            const answeredCount = Object.keys(selected).length;
 
-            // ─── Count correct ───
-            function countCorrect(selected) {
-                let correct = 0;
-                for (const qNum in selected) {
-                    if (selected[qNum] === CORRECT[qNum]) {
-                        correct++;
-                    }
-                }
-                return correct;
-            }
-
-            // ─── Show results ───
-            function showResults(selected) {
-                const answeredCount = Object.keys(selected).length;
-                const correctCount = countCorrect(selected);
-
-                // 如果一题都没答，直接视为不通过
-                if (answeredCount === 0) {
-                    scoreDisplay.textContent = `0 / 0`;
-                    resultMessage.textContent = '😓 You answered no questions.';
-                    resultMessage.style.color = '#c73d3d';
-                    resultSub.textContent = 'Please try again and answer at least one question.';
-                    retryArea.style.display = 'flex';
-                    resultBox.classList.add('visible');
-                    return;
-                }
-
-                const percentage = (correctCount / answeredCount) * 100;
-                const passed = percentage >= 50;  // 正确率 >= 50% 通过
-
-                scoreDisplay.textContent = `${correctCount} / ${answeredCount}`;
-
-                if (passed) {
-                    resultMessage.textContent = '🎉 Well done! You passed!';
-                    resultMessage.style.color = '#1f8b4c';
-                    resultSub.textContent = `You got ${correctCount} correct out of ${answeredCount} attempted (${Math.round(percentage)}%).`;
-                    retryArea.style.display = 'none';
-                } else {
-                    resultMessage.textContent = '😓 Not quite enough.';
-                    resultMessage.style.color = '#c73d3d';
-                    resultSub.textContent =
-                        `You got ${correctCount} correct out of ${answeredCount} attempted (${Math.round(percentage)}%). You need at least 50% correct to pass.`;
-                    retryArea.style.display = 'flex';
-                }
-
+            if (answeredCount === 0) {
+                scoreDisplay.textContent = `0 / 0`;
+                resultMessage.textContent = '😓 You answered no questions.';
+                resultMessage.style.color = '#c73d3d';
+                resultSub.textContent = 'Please try again and answer at least one question.';
+                retryArea.style.display = 'flex';
                 resultBox.classList.add('visible');
-                // Scroll to results
-                resultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
             }
 
-            // ─── Handle submit ───
-            function handleSubmit() {
-                // Validate student info (必须填写)
-                const cls = classInput.value.trim();
-                const num = numberInput.value.trim();
-                if (!cls || !num) {
-                    alert('Please enter your Class and Class Number before submitting.');
-                    classInput.focus();
-                    return;
-                }
+            const correctCount = countCorrect(selected);
+            const percentage = (correctCount / answeredCount) * 100;
+            const passed = percentage >= 50;
 
-                // 获取已选的答案（不要求全部答完）
-                const selected = getSelectedAnswers();
-                showResults(selected);
-            }
-
-            // ─── Reset everything ───
-            function resetAll() {
-                // Clear all radio buttons
-                for (let i = 1; i <= TOTAL; i++) {
-                    const radios = document.querySelectorAll(`input[name="q${i}"]`);
-                    radios.forEach(r => r.checked = false);
-                }
-
-                // Clear student info
-                classInput.value = '';
-                numberInput.value = '';
-
-                // Hide result box
-                resultBox.classList.remove('visible');
+            // 更新界面结果
+            scoreDisplay.textContent = `${correctCount} / ${answeredCount}`;
+            if (passed) {
+                resultMessage.textContent = '🎉 Well done! You passed!';
+                resultMessage.style.color = '#1f8b4c';
+                resultSub.textContent = `You got ${correctCount} correct out of ${answeredCount} attempted (${Math.round(percentage)}%).`;
                 retryArea.style.display = 'none';
-
-                // Reset result text
-                resultMessage.style.color = '#0b1e3a';
-                resultSub.textContent = '';
-
-                // Scroll to top
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                resultMessage.textContent = '😓 Not quite enough.';
+                resultMessage.style.color = '#c73d3d';
+                resultSub.textContent =
+                    `You got ${correctCount} correct out of ${answeredCount} attempted (${Math.round(percentage)}%). You need at least 50% correct to pass.`;
+                retryArea.style.display = 'flex';
             }
+            resultBox.classList.add('visible');
+            resultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-            // ─── Retry (same as reset but keeps student info) ───
-            function retryExam() {
-                // Clear all radio buttons
-                for (let i = 1; i <= TOTAL; i++) {
-                    const radios = document.querySelectorAll(`input[name="q${i}"]`);
-                    radios.forEach(r => r.checked = false);
-                }
+            // --- 将数据发送到 Google Sheets ---
+            submitToGoogleSheet(selected, correctCount, answeredCount);
+        }
 
-                // Hide result box
-                resultBox.classList.remove('visible');
-                retryArea.style.display = 'none';
-                resultMessage.style.color = '#0b1e3a';
-                resultSub.textContent = '';
-
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+        // ─── 重置 ───
+        function resetAll() {
+            for (let i = 1; i <= TOTAL; i++) {
+                const radios = document.querySelectorAll(`input[name="q${i}"]`);
+                radios.forEach(r => r.checked = false);
             }
+            classInput.value = '';
+            numberInput.value = '';
+            resultBox.classList.remove('visible');
+            retryArea.style.display = 'none';
+            resultMessage.style.color = '#0b1e3a';
+            resultSub.textContent = '';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
-            // ─── Init ───
-            buildQuestions();
+        function retryExam() {
+            for (let i = 1; i <= TOTAL; i++) {
+                const radios = document.querySelectorAll(`input[name="q${i}"]`);
+                radios.forEach(r => r.checked = false);
+            }
+            resultBox.classList.remove('visible');
+            retryArea.style.display = 'none';
+            resultMessage.style.color = '#0b1e3a';
+            resultSub.textContent = '';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
-            // ─── Event listeners ───
-            submitBtn.addEventListener('click', handleSubmit);
+        // ─── 事件绑定 ───
+        submitBtn.addEventListener('click', handleSubmit);
+        resetBtn.addEventListener('click', resetAll);
+        retryBtn.addEventListener('click', retryExam);
 
-            resetBtn.addEventListener('click', resetAll);
-
-            retryBtn.addEventListener('click', retryExam);
-
-            // Allow Enter key to submit (only if result box is not visible)
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && e.target.tagName !== 'INPUT') {
-                    if (!resultBox.classList.contains('visible')) {
-                        handleSubmit();
-                    }
+        // 快捷键 Ctrl+Enter
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                if (!resultBox.classList.contains('visible')) {
+                    handleSubmit();
                 }
-            });
+            }
+        });
 
-            // Ctrl+Enter shortcut
-            document.addEventListener('keydown', (e) => {
-                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                    e.preventDefault();
-                    if (!resultBox.classList.contains('visible')) {
-                        handleSubmit();
-                    }
-                }
-            });
-
-            console.log('✅ MCQ Ready — 35 questions, pass threshold = 50% of attempted');
-        })();
-    </script>
+        buildQuestions();
+        console.log('✅ Lv3 MC Ready — 35 questions, pass threshold = 50% of attempted');
+    })();
+</script>
 
 </body>
 </html>
