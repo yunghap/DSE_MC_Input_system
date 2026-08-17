@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Level 4 MC Training – 20 Questions</title>
+    <style>
+        /* ───────────── Reset & Base ───────────── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+            background: #f0f4fa;
+            padding: 30px 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .container {
+            max-width: 960px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 20px 60px rgba(0, 20, 50, 0.12);
+            padding: 40px 45px 50px;
+            transition: all 0.2s;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0b1e3a;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        h1 small {
+            font-weight: 400;
+            font-size: 16px;
+            color: #5e6f8d;
+            letter-spacing: 0;
+            margin-left: 6px;
+        }
+
+        .subhead {
+            color: #4a5a7a;
+            font-size: 15px;
+            border-left: 4px solid #3b7cff;
+            padding-left: 16px;
+            margin-bottom: 32px;
+            background: #f6f9fe;
+            border-radius: 0 12px 12px 0;
+            line-height: 1.5;
+            padding: 10px 16px;
+        }
+
+        /* ───────────── Student Info ───────────── */
+        .student-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px 28px;
+            background: #f7faff;
+            padding: 18px 24px 20px;
+            border-radius: 18px;
+            margin-bottom: 32px;
+            border: 1px solid #e6edf6;
+        }
+
+        .student-info .field {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .student-info label {
+            font-weight: 600;
+            font-size: 15px;
+            color: #1a2a4a;
+            min-width: 70px;
+        }
+
+        .student-info input {
+            padding: 10px 16px;
+            border: 1.5px solid #d6e0ec;
+            border-radius: 12px;
+            font-size: 15px;
+            background: white;
+            transition: 0.2s;
+            width: 160px;
+            outline: none;
+        }
+
+        .student-info input:focus {
+            border-color: #3b7cff;
+            box-shadow: 0 0 0 4px rgba(59, 124, 255, 0.10);
+        }
+
+        .student-info input::placeholder {
+            color: #a9b9cf;
+        }
+
+        /* ───────────── Questions ───────────── */
+        .questions-section {
+            margin-top: 8px;
+        }
+
+        .question-item {
+            background: #fafcff;
+            border: 1px solid #e9eff7;
+            border-radius: 16px;
+            padding: 16px 22px 18px;
+            margin-bottom: 14px;
+            transition: 0.15s;
+        }
+
+        .question-item:hover {
+            border-color: #cbd8ea;
+            background: #f8faff;
+        }
+
+        .question-number {
+            font-weight: 700;
+            font-size: 15px;
+            color: #0b1e3a;
+            display: inline-block;
+            min-width: 38px;
+        }
+
+        .question-text {
+            font-weight: 500;
+            font-size: 15.5px;
+            color: #142b4a;
+            display: inline-block;
+            margin-right: 12px;
+        }
+
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 24px;
+            margin-top: 10px;
+            padding-left: 38px;
+        }
+
+        .options label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            color: #1e3456;
+            cursor: pointer;
+            padding: 5px 10px 5px 6px;
+            border-radius: 10px;
+            transition: 0.15s;
+        }
+
+        .options label:hover {
+            background: #eef4fd;
+        }
+
+        .options input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #3b7cff;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        /* ───────────── Buttons ───────────── */
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 34px;
+            border-top: 2px dashed #e6edf6;
+            padding-top: 34px;
+        }
+
+        .btn {
+            padding: 14px 42px;
+            border: none;
+            border-radius: 60px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            letter-spacing: 0.3px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #1a3a7a;
+            color: white;
+            box-shadow: 0 8px 20px rgba(26, 58, 122, 0.20);
+        }
+
+        .btn-primary:hover {
+            background: #0f2d62;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(26, 58, 122, 0.28);
+        }
+
+        .btn-secondary {
+            background: #e9eff7;
+            color: #1a2a4a;
+        }
+
+        .btn-secondary:hover {
+            background: #d6e0ec;
+        }
+
+        .btn-success {
+            background: #1f8b4c;
+            color: white;
+            box-shadow: 0 8px 20px rgba(31, 139, 76, 0.20);
+        }
+
+        .btn-success:hover {
+            background: #16733e;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: #c73d3d;
+            color: white;
+            box-shadow: 0 8px 20px rgba(199, 61, 61, 0.20);
+        }
+
+        .btn-warning:hover {
+            background: #a82e2e;
+            transform: translateY(-2px);
+        }
+
+        /* ───────────── Results ───────────── */
+        .result-box {
+            margin-top: 28px;
+            padding: 28px 30px;
+            border-radius: 22px;
+            background: #f7faff;
+            border: 2px solid #dce6f2;
+            text-align: center;
+            display: none;
+        }
+
+        .result-box.visible {
+            display: block;
+            animation: fadeUp 0.4s ease;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-box .score {
+            font-size: 48px;
+            font-weight: 800;
+            color: #0b1e3a;
+            line-height: 1.2;
+        }
+
+        .result-box .message {
+            font-size: 18px;
+            color: #1e3456;
+            margin-top: 8px;
+        }
+
+        .result-box .sub-message {
+            font-size: 16px;
+            color: #5a6f8e;
+            margin-top: 6px;
+        }
+
+        .result-box .retry-area {
+            margin-top: 22px;
+            padding-top: 22px;
+            border-top: 2px dashed #dce6f2;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            justify-content: center;
+        }
+
+        .result-box .retry-area .btn {
+            padding: 12px 34px;
+            font-size: 16px;
+        }
+
+        /* ───────────── Responsive ───────────── */
+        @media (max-width: 700px) {
+            .container {
+                padding: 20px 16px 30px;
+                border-radius: 20px;
+            }
+
+            h1 {
+                font-size: 22px;
+                flex-wrap: wrap;
+            }
+
+            .student-info {
+                flex-direction: column;
+                gap: 14px;
+                padding: 16px 18px;
+            }
+
+            .student-info .field {
+                flex-wrap: wrap;
+            }
+
+            .student-info input {
+                width: 100%;
+            }
+
+            .question-item {
+                padding: 14px 16px;
+            }
+
+            .options {
+                padding-left: 0;
+                margin-top: 8px;
+                gap: 6px 14px;
+            }
+
+            .options label {
+                font-size: 14px;
+                padding: 4px 8px;
+            }
+
+            .btn {
+                padding: 12px 28px;
+                font-size: 15px;
+                width: 100%;
+                justify-content: center;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .result-box .score {
+                font-size: 36px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 14px 10px 24px;
+            }
+            .question-number {
+                display: block;
+                margin-bottom: 2px;
+            }
+            .options {
+                gap: 4px 8px;
+            }
+            .options label {
+                font-size: 13px;
+                padding: 3px 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="app">
+
+    <!-- ─── Header ─── -->
+    <h1>
+        📝 Level 4 · MC Training
+        <small>20 Questions</small>
+    </h1>
+    <div class="subhead">
+        Select the correct answer for each question. You need <strong>at least 50%</strong> correct to pass.
+    </div>
+
+    <!-- ─── Student Info ─── -->
+    <div class="student-info">
+        <div class="field">
+            <label for="studentClass">Class</label>
+            <input type="text" id="studentClass" placeholder="e.g. 4A" maxlength="10" />
+        </div>
+        <div class="field">
+            <label for="classNumber">Class No.</label>
+            <input type="text" id="classNumber" placeholder="e.g. 12" maxlength="10" />
+        </div>
+    </div>
+
+    <!-- ─── Questions ─── -->
+    <div class="questions-section" id="questionsContainer">
+        <!-- injected by JS -->
+    </div>
+
+    <!-- ─── Actions ─── -->
+    <div class="actions">
+        <button class="btn btn-primary" id="submitBtn">✅ Submit & Upload</button>
+        <button class="btn btn-secondary" id="resetBtn">⟳ Reset All</button>
+    </div>
+
+    <!-- ─── Result Box ─── -->
+    <div class="result-box" id="resultBox">
+        <div class="score" id="scoreDisplay">0 / 0</div>
+        <div class="message" id="resultMessage">Great job!</div>
+        <div class="sub-message" id="resultSub"></div>
+        <div class="retry-area" id="retryArea" style="display:none;">
+            <button class="btn btn-warning" id="retryBtn">🔄 Try Again</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    (function() {
+        'use strict';
+
+        // ─── Correct Answers for Level 4 (20 questions) ───
+        const CORRECT = {
+            1: 'C', 2: 'D', 3: 'D', 4: 'B', 5: 'C',
+            6: 'B', 7: 'C', 8: 'C', 9: 'C', 10: 'D',
+            11: 'B', 12: 'B', 13: 'A', 14: 'C', 15: 'A',
+            16: 'B', 17: 'C', 18: 'C', 19: 'B', 20: 'B'
+        };
+        const TOTAL = 20;
+
+        // ─── DOM 引用 ───
+        const container = document.getElementById('questionsContainer');
+        const submitBtn = document.getElementById('submitBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const retryBtn = document.getElementById('retryBtn');
+        const resultBox = document.getElementById('resultBox');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const resultMessage = document.getElementById('resultMessage');
+        const resultSub = document.getElementById('resultSub');
+        const retryArea = document.getElementById('retryArea');
+        const classInput = document.getElementById('studentClass');
+        const numberInput = document.getElementById('classNumber');
+
+        // ─── 生成题目 ───
+        function buildQuestions() {
+            let html = '';
+            for (let i = 1; i <= TOTAL; i++) {
+                html += `
+                    <div class="question-item" data-q="${i}">
+                        <div>
+                            <span class="question-number">Q${i}.</span>
+                            <span class="question-text">Choose the correct option:</span>
+                        </div>
+                        <div class="options" data-q="${i}">
+                            <label><input type="radio" name="q${i}" value="A" /> A</label>
+                            <label><input type="radio" name="q${i}" value="B" /> B</label>
+                            <label><input type="radio" name="q${i}" value="C" /> C</label>
+                            <label><input type="radio" name="q${i}" value="D" /> D</label>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        // ─── 获取已选答案 ───
+        function getSelectedAnswers() {
+            const selected = {};
+            for (let i = 1; i <= TOTAL; i++) {
+                const radios = document.querySelectorAll(`input[name="q${i}"]`);
+                let value = null;
+                for (const r of radios) {
+                    if (r.checked) {
+                        value = r.value;
+                        break;
+                    }
+                }
+                if (value !== null) {
+                    selected[i] = value;
+                }
+            }
+            return selected;
+        }
+
+        // ─── 统计正确数 ───
+        function countCorrect(selected) {
+            let correct = 0;
+            for (const qNum in selected) {
+                if (selected[qNum] === CORRECT[qNum]) {
+                    correct++;
+                }
+            }
+            return correct;
+        }
+
+        // ─── 提交数据到 Google Sheets ───
+        function submitToGoogleSheet(selected, correctCount, answeredCount) {
+            const cls = classInput.value.trim() || 'N/A';
+            const num = numberInput.value.trim() || 'N/A';
+
+            // ★ 请将此 URL 替换为您部署的 Web App 地址（末尾 /exec）
+            const url = 'https://script.google.com/macros/s/你的部署ID/exec';  // ← 替换
+
+            const form = document.createElement('form');
+            form.action = url;
+            form.method = 'POST';
+            form.target = '_blank';
+
+            const addField = (name, value) => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name;
+                input.value = value;
+                form.appendChild(input);
+            };
+
+            // --- 基本信息 ---
+            addField('class', cls);
+            addField('classNumber', num);
+            addField('correctCount', correctCount);
+            addField('answeredCount', answeredCount);
+            addField('sheetName', 'Lv4');   // 写入 Lv4 工作表
+
+            // --- 每题答案（20题） ---
+            for (let q = 1; q <= TOTAL; q++) {
+                const userAns = selected[q] || '';
+                const correctAns = CORRECT[q] || '';
+                addField(`Q${q}_user`, userAns);
+                addField(`Q${q}_correct`, correctAns);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+        }
+
+        // ─── 显示结果并上传 ───
+        function handleSubmit() {
+            // 验证学生信息
+            const cls = classInput.value.trim();
+            const num = numberInput.value.trim();
+            if (!cls || !num) {
+                alert('Please enter your Class and Class Number before submitting.');
+                classInput.focus();
+                return;
+            }
+
+            const selected = getSelectedAnswers();
+            const answeredCount = Object.keys(selected).length;
+
+            if (answeredCount === 0) {
+                scoreDisplay.textContent = `0 / 0`;
+                resultMessage.textContent = '😓 You answered no questions.';
+                resultMessage.style.color = '#c73d3d';
+                resultSub.textContent = 'Please try again and answer at least one question.';
+                retryArea.style.display = 'flex';
+                resultBox.classList.add('visible');
+                return;
+            }
+
+            const correctCount = countCorrect(selected);
+            const percentage = (correctCount / answeredCount) * 100;
+            const passed = percentage >= 50;
+
+            // 更新界面结果
+            scoreDisplay.textContent = `${correctCount} / ${answeredCount}`;
+            if (passed) {
+                resultMessage.textContent = '🎉 Well done! You passed!';
+                resultMessage.style.color = '#1f8b4c';
+                resultSub.textContent = `You got ${correctCount} correct out of ${answeredCount} attempted (${Math.round(percentage)}%).`;
+                retryArea.style.display = 'none';
+            } else {
+                resultMessage.textContent = '😓 Not quite enough.';
+                resultMessage.style.color = '#c73d3d';
+                resultSub.textContent =
+                    `You got ${correctCount} correct out of ${answeredCount} attempted (${Math.round(percentage)}%). You need at least 50% correct to pass.`;
+                retryArea.style.display = 'flex';
+            }
+            resultBox.classList.add('visible');
+            resultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // --- 将数据发送到 Google Sheets ---
+            submitToGoogleSheet(selected, correctCount, answeredCount);
+        }
+
+        // ─── 重置 ───
+        function resetAll() {
+            for (let i = 1; i <= TOTAL; i++) {
+                const radios = document.querySelectorAll(`input[name="q${i}"]`);
+                radios.forEach(r => r.checked = false);
+            }
+            classInput.value = '';
+            numberInput.value = '';
+            resultBox.classList.remove('visible');
+            retryArea.style.display = 'none';
+            resultMessage.style.color = '#0b1e3a';
+            resultSub.textContent = '';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function retryExam() {
+            for (let i = 1; i <= TOTAL; i++) {
+                const radios = document.querySelectorAll(`input[name="q${i}"]`);
+                radios.forEach(r => r.checked = false);
+            }
+            resultBox.classList.remove('visible');
+            retryArea.style.display = 'none';
+            resultMessage.style.color = '#0b1e3a';
+            resultSub.textContent = '';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ─── 事件绑定 ───
+        submitBtn.addEventListener('click', handleSubmit);
+        resetBtn.addEventListener('click', resetAll);
+        retryBtn.addEventListener('click', retryExam);
+
+        // 快捷键 Ctrl+Enter
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                if (!resultBox.classList.contains('visible')) {
+                    handleSubmit();
+                }
+            }
+        });
+
+        buildQuestions();
+        console.log('✅ Lv4 MC Ready — 20 questions, pass threshold = 50% of attempted');
+    })();
+</script>
+
+</body>
+</html>
