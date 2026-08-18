@@ -244,6 +244,16 @@
             transform: translateY(-2px);
         }
 
+        .btn-download {
+            background: #e67e22;
+            color: white;
+            box-shadow: 0 8px 20px rgba(230, 126, 34, 0.20);
+        }
+        .btn-download:hover {
+            background: #d35400;
+            transform: translateY(-2px);
+        }
+
         /* ───────────── Results ───────────── */
         .result-box {
             margin-top: 28px;
@@ -305,6 +315,49 @@
             font-size: 16px;
         }
 
+        /* ─── 错题反馈区域 ─── */
+        .feedback-section {
+            margin-top: 20px;
+            text-align: left;
+            border-top: 2px solid #e6edf6;
+            padding-top: 20px;
+        }
+        .feedback-section h3 {
+            font-size: 18px;
+            color: #0a2540;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .feedback-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 12px;
+            background: #fff7f7;
+            border-left: 4px solid #c73d3d;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            font-size: 15px;
+        }
+        .feedback-item .qnum {
+            font-weight: 700;
+            color: #c73d3d;
+        }
+        .feedback-item .wrong-answer {
+            color: #c73d3d;
+            font-weight: 600;
+        }
+        .feedback-item .correct-answer {
+            color: #1f8b4c;
+            font-weight: 600;
+        }
+
+        .download-area {
+            margin-top: 18px;
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+        }
+
         /* ───────────── Responsive ───────────── */
         @media (max-width: 700px) {
             .container {
@@ -359,6 +412,11 @@
 
             .result-box .score {
                 font-size: 36px;
+            }
+
+            .feedback-item {
+                flex-wrap: wrap;
+                gap: 4px;
             }
         }
 
@@ -421,6 +479,18 @@
         <div class="score" id="scoreDisplay">0 / 0</div>
         <div class="message" id="resultMessage">Great job!</div>
         <div class="sub-message" id="resultSub"></div>
+
+        <!-- 错题反馈列表 -->
+        <div class="feedback-section" id="feedbackSection" style="display:none;">
+            <h3>📋 錯題回饋 (Wrong Answers)</h3>
+            <div id="feedbackList"></div>
+        </div>
+
+        <!-- 下载按钮区域 -->
+        <div class="download-area" id="downloadArea" style="display:none;">
+            <button class="btn btn-download" id="downloadReportBtn">📥 下載報告圖片 (Download Report)</button>
+        </div>
+
         <div class="retry-area" id="retryArea" style="display:none;">
             <button class="btn btn-warning" id="retryBtn">🔄 Try Again</button>
         </div>
@@ -453,6 +523,15 @@
         const retryArea = document.getElementById('retryArea');
         const classInput = document.getElementById('studentClass');
         const numberInput = document.getElementById('classNumber');
+
+        // 新元素
+        const feedbackSection = document.getElementById('feedbackSection');
+        const feedbackList = document.getElementById('feedbackList');
+        const downloadArea = document.getElementById('downloadArea');
+        const downloadReportBtn = document.getElementById('downloadReportBtn');
+
+        // 存储最近一次的结果（用于生成图片）
+        let lastReportData = null;
 
         // ─── 生成题目 ───
         function buildQuestions() {
@@ -495,15 +574,22 @@
             return selected;
         }
 
-        // ─── 统计正确数 ───
-        function countCorrect(selected) {
+        // ─── 统计正确数和错题列表 ───
+        function evaluateAnswers(selected) {
             let correct = 0;
-            for (const qNum in selected) {
-                if (selected[qNum] === CORRECT[qNum]) {
+            const wrongList = [];
+            for (let q = 1; q <= TOTAL; q++) {
+                const userAns = selected[q];
+                const correctAns = CORRECT[q];
+                if (userAns === undefined) continue; // 未作答跳过
+                if (userAns === correctAns) {
                     correct++;
+                } else {
+                    wrongList.push({ q, userAns, correctAns });
                 }
             }
-            return correct;
+            const answeredCount = Object.keys(selected).length;
+            return { correct, wrongList, answeredCount };
         }
 
         // ─── 提交数据到 Google Sheets ───
@@ -511,8 +597,8 @@
             const cls = classInput.value.trim() || 'N/A';
             const num = numberInput.value.trim() || 'N/A';
 
-            // ★ 请将此 URL 替换为您部署的 Web App 地址（末尾 /exec）
-            const url = 'https://script.google.com/macros/s/AKfycbwCp6xDscPSFX5D2Zdidi3UIHE27CflWVVS6AuOFfEL41uvgG2XvjVssFxizvBrbffC/exec';  // ← 替换
+            // ★ 已嵌入您的 Web App URL
+            const url = 'https://script.google.com/macros/s/AKfycbwCp6xDscPSFX5D2Zdidi3UIHE27CflWVVS6AuOFfEL41uvgG2XvjVssFxizvBrbffC/exec';
 
             const form = document.createElement('form');
             form.action = url;
@@ -527,14 +613,12 @@
                 form.appendChild(input);
             };
 
-            // --- 基本信息 ---
             addField('class', cls);
             addField('classNumber', num);
             addField('correctCount', correctCount);
             addField('answeredCount', answeredCount);
-            addField('sheetName', 'Lv5');   // 写入 Lv5 工作表
+            addField('sheetName', 'Lv5');
 
-            // --- 每题答案（20题） ---
             for (let q = 1; q <= TOTAL; q++) {
                 const userAns = selected[q] || '';
                 const correctAns = CORRECT[q] || '';
@@ -547,9 +631,166 @@
             document.body.removeChild(form);
         }
 
-        // ─── 显示结果并上传 ───
+        // ─── 显示结果（包含错题反馈） ───
+        function showResults(selected) {
+            const { correct, wrongList, answeredCount } = evaluateAnswers(selected);
+
+            if (answeredCount === 0) {
+                scoreDisplay.textContent = `0 / 0`;
+                resultMessage.textContent = '😓 You answered no questions.';
+                resultMessage.style.color = '#c73d3d';
+                resultSub.textContent = 'Please try again and answer at least one question.';
+                retryArea.style.display = 'flex';
+                feedbackSection.style.display = 'none';
+                downloadArea.style.display = 'none';
+                resultBox.classList.add('visible');
+                return;
+            }
+
+            const percentage = (correct / answeredCount) * 100;
+            const passed = percentage >= 50;
+
+            // 更新分数
+            scoreDisplay.textContent = `${correct} / ${answeredCount}`;
+            if (passed) {
+                resultMessage.textContent = '🎉 Well done! You passed!';
+                resultMessage.style.color = '#1f8b4c';
+                resultSub.textContent = `You got ${correct} correct out of ${answeredCount} attempted (${Math.round(percentage)}%).`;
+                retryArea.style.display = 'none';
+            } else {
+                resultMessage.textContent = '😓 Not quite enough.';
+                resultMessage.style.color = '#c73d3d';
+                resultSub.textContent =
+                    `You got ${correct} correct out of ${answeredCount} attempted (${Math.round(percentage)}%). You need at least 50% correct to pass.`;
+                retryArea.style.display = 'flex';
+            }
+
+            // 错题反馈
+            if (wrongList.length > 0) {
+                feedbackSection.style.display = 'block';
+                let html = '';
+                wrongList.forEach(item => {
+                    html += `
+                        <div class="feedback-item">
+                            <span class="qnum">Q${item.q}</span>
+                            <span>你的答案: <span class="wrong-answer">${item.userAns}</span></span>
+                            <span>正確答案: <span class="correct-answer">${item.correctAns}</span></span>
+                        </div>
+                    `;
+                });
+                feedbackList.innerHTML = html;
+            } else {
+                feedbackSection.style.display = 'block';
+                feedbackList.innerHTML = '<p style="color:#1f8b4c; font-weight:600;">🎯 全部答對！ (All correct!)</p>';
+            }
+
+            // 显示下载按钮
+            downloadArea.style.display = 'flex';
+
+            // 存储报告数据用于生成图片
+            lastReportData = {
+                class: classInput.value.trim() || 'N/A',
+                number: numberInput.value.trim() || 'N/A',
+                correct,
+                answeredCount,
+                wrongList,
+                passed,
+                percentage: Math.round(percentage),
+                level: '5'
+            };
+
+            resultBox.classList.add('visible');
+            resultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // 提交到 Google Sheets
+            submitToGoogleSheet(selected, correct, answeredCount);
+        }
+
+        // ─── 生成报告图片（Canvas）并下载 ───
+        function generateReportImage() {
+            if (!lastReportData) return;
+
+            const data = lastReportData;
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // 设置画布尺寸（宽度固定，高度根据错题数量动态调整）
+            const width = 800;
+            const baseHeight = 400;
+            const lineHeight = 28;
+            const wrongListHeight = data.wrongList.length > 0 ? data.wrongList.length * lineHeight + 40 : 60;
+            const totalHeight = baseHeight + wrongListHeight;
+
+            canvas.width = width;
+            canvas.height = totalHeight;
+
+            // 背景
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, width, totalHeight);
+
+            // 边框装饰
+            ctx.strokeStyle = '#3b7cff';
+            ctx.lineWidth = 6;
+            ctx.strokeRect(10, 10, width - 20, totalHeight - 20);
+
+            // 标题
+            ctx.fillStyle = '#0a2540';
+            ctx.font = 'bold 28px "Segoe UI", "Inter", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(`📝 Level ${data.level} MC Training Report`, width/2, 50);
+
+            // 学生信息
+            ctx.font = '18px "Segoe UI", "Inter", sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#1a2a4a';
+            ctx.fillText(`Class: ${data.class}`, 50, 100);
+            ctx.fillText(`Class No.: ${data.number}`, 400, 100);
+
+            // 得分
+            const scoreText = `${data.correct} / ${data.answeredCount}`;
+            const passText = data.passed ? '✅ PASSED' : '❌ NOT PASSED';
+            ctx.font = 'bold 20px "Segoe UI", "Inter", sans-serif';
+            ctx.fillStyle = data.passed ? '#1f8b4c' : '#c73d3d';
+            ctx.fillText(`Score: ${scoreText} (${data.percentage}%)`, 50, 145);
+            ctx.fillText(passText, 400, 145);
+
+            // 错题列表标题
+            let yPos = 190;
+            ctx.font = 'bold 18px "Segoe UI", "Inter", sans-serif';
+            ctx.fillStyle = '#0a2540';
+            ctx.textAlign = 'left';
+            ctx.fillText('📋 錯題回饋 (Wrong Answers):', 50, yPos);
+            yPos += 30;
+
+            if (data.wrongList.length === 0) {
+                ctx.font = '18px "Segoe UI", "Inter", sans-serif';
+                ctx.fillStyle = '#1f8b4c';
+                ctx.fillText('🎯 全部答對！ (All correct!)', 60, yPos);
+            } else {
+                ctx.font = '16px "Segoe UI", "Inter", sans-serif';
+                data.wrongList.forEach((item, idx) => {
+                    const text = `Q${item.q}:  你的答案 = ${item.userAns}   |   正確答案 = ${item.correctAns}`;
+                    ctx.fillStyle = '#c73d3d';
+                    ctx.fillText(text, 60, yPos);
+                    yPos += lineHeight;
+                });
+            }
+
+            // 页脚
+            ctx.font = '14px "Segoe UI", "Inter", sans-serif';
+            ctx.fillStyle = '#888';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Generated on ${new Date().toLocaleString()}`, width/2, totalHeight - 20);
+
+            // 下载图片
+            const link = document.createElement('a');
+            link.download = `Lv${data.level}_Report_${data.class}_${data.number}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // ─── 提交处理 ───
         function handleSubmit() {
-            // 验证学生信息
             const cls = classInput.value.trim();
             const num = numberInput.value.trim();
             if (!cls || !num) {
@@ -559,41 +800,7 @@
             }
 
             const selected = getSelectedAnswers();
-            const answeredCount = Object.keys(selected).length;
-
-            if (answeredCount === 0) {
-                scoreDisplay.textContent = `0 / 0`;
-                resultMessage.textContent = '😓 You answered no questions.';
-                resultMessage.style.color = '#c73d3d';
-                resultSub.textContent = 'Please try again and answer at least one question.';
-                retryArea.style.display = 'flex';
-                resultBox.classList.add('visible');
-                return;
-            }
-
-            const correctCount = countCorrect(selected);
-            const percentage = (correctCount / answeredCount) * 100;
-            const passed = percentage >= 50;
-
-            // 更新界面结果
-            scoreDisplay.textContent = `${correctCount} / ${answeredCount}`;
-            if (passed) {
-                resultMessage.textContent = '🎉 Well done! You passed!';
-                resultMessage.style.color = '#1f8b4c';
-                resultSub.textContent = `You got ${correctCount} correct out of ${answeredCount} attempted (${Math.round(percentage)}%).`;
-                retryArea.style.display = 'none';
-            } else {
-                resultMessage.textContent = '😓 Not quite enough.';
-                resultMessage.style.color = '#c73d3d';
-                resultSub.textContent =
-                    `You got ${correctCount} correct out of ${answeredCount} attempted (${Math.round(percentage)}%). You need at least 50% correct to pass.`;
-                retryArea.style.display = 'flex';
-            }
-            resultBox.classList.add('visible');
-            resultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-            // --- 将数据发送到 Google Sheets ---
-            submitToGoogleSheet(selected, correctCount, answeredCount);
+            showResults(selected);
         }
 
         // ─── 重置 ───
@@ -608,6 +815,9 @@
             retryArea.style.display = 'none';
             resultMessage.style.color = '#0b1e3a';
             resultSub.textContent = '';
+            feedbackSection.style.display = 'none';
+            downloadArea.style.display = 'none';
+            lastReportData = null;
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -620,6 +830,9 @@
             retryArea.style.display = 'none';
             resultMessage.style.color = '#0b1e3a';
             resultSub.textContent = '';
+            feedbackSection.style.display = 'none';
+            downloadArea.style.display = 'none';
+            lastReportData = null;
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -627,6 +840,7 @@
         submitBtn.addEventListener('click', handleSubmit);
         resetBtn.addEventListener('click', resetAll);
         retryBtn.addEventListener('click', retryExam);
+        downloadReportBtn.addEventListener('click', generateReportImage);
 
         // 快捷键 Ctrl+Enter
         document.addEventListener('keydown', (e) => {
