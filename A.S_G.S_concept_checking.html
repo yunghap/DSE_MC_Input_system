@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A.S. & G.S. Concepts & Formulas MC Quiz</title>
+    <!-- Font Awesome 6 (free) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: #f0f5fb;
+            color: #0b2b44;
+            padding: 24px 16px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 880px;
+            width: 100%;
+        }
+
+        .header {
+            background: linear-gradient(145deg, #0b2b44, #1a4b6d);
+            color: #fff;
+            padding: 20px 28px;
+            border-radius: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 12px 28px rgba(0, 20, 40, 0.30);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header h1 {
+            font-weight: 700;
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header h1 i {
+            color: #facc15;
+            font-size: 1.8rem;
+        }
+        .header .sub {
+            opacity: 0.85;
+            font-size: 0.9rem;
+            margin-top: 2px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .header-actions button {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.20);
+            color: #fff;
+            padding: 8px 18px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+            backdrop-filter: blur(2px);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .header-actions button:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+        .header-actions .btn-reset {
+            background: #facc15;
+            color: #0b2b44;
+            border-color: #facc15;
+        }
+        .header-actions .btn-reset:hover {
+            background: #fde047;
+            border-color: #fde047;
+        }
+        .header-actions .btn-result {
+            background: #22c55e;
+            color: #0b2b44;
+            border-color: #22c55e;
+        }
+        .header-actions .btn-result:hover {
+            background: #4ade80;
+            border-color: #4ade80;
+        }
+
+        .stats {
+            background: #fff;
+            border-radius: 18px;
+            padding: 14px 24px;
+            margin-bottom: 28px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            gap: 12px;
+        }
+        .stats .score {
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+        .stats .score span {
+            color: #0b2b44;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .stats .progress-wrap {
+            flex: 1 1 180px;
+            min-width: 100px;
+            height: 8px;
+            background: #e9edf2;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .stats .progress-wrap .fill {
+            height: 100%;
+            background: linear-gradient(90deg, #16a34a, #22c55e);
+            border-radius: 20px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+        .stats .q-counter {
+            font-size: 0.95rem;
+            color: #4b5a6e;
+            font-weight: 500;
+        }
+
+        /* ----- question card ----- */
+        .question-card {
+            background: #fff;
+            border-radius: 24px;
+            padding: 28px 30px;
+            border: 1px solid #e9edf2;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            margin-bottom: 20px;
+            transition: 0.2s;
+        }
+        .question-card .q-header {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+        .question-card .q-number {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #64748b;
+            background: #f1f5f9;
+            padding: 2px 14px;
+            border-radius: 40px;
+        }
+        .question-card .q-tag {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #fff;
+            background: #1a4b6d;
+            padding: 2px 14px;
+            border-radius: 40px;
+        }
+        .question-card .q-tag.gs {
+            background: #b45309;
+        }
+        .question-card .q-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            font-weight: 500;
+            margin-bottom: 20px;
+            color: #0b2b44;
+        }
+        .question-card .q-text .math {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .options .option {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 18px;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: 0.15s;
+            background: #fafbfc;
+        }
+        .options .option:hover {
+            border-color: #94a3b8;
+            background: #f1f5f9;
+        }
+        .options .option .letter {
+            font-weight: 700;
+            color: #64748b;
+            min-width: 24px;
+        }
+        .options .option .content {
+            flex: 1;
+        }
+        .options .option.selected-correct {
+            border-color: #16a34a;
+            background: #f0fdf4;
+        }
+        .options .option.selected-incorrect {
+            border-color: #dc2626;
+            background: #fef2f2;
+        }
+        .options .option.show-correct {
+            border-color: #16a34a;
+            background: #f0fdf4;
+        }
+        .options .option.disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .feedback {
+            margin-top: 12px;
+            padding: 14px 18px;
+            border-radius: 14px;
+            background: #f8fafc;
+            border-left: 6px solid #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            display: none;
+        }
+        .feedback.correct {
+            border-left-color: #16a34a;
+            background: #f0fdf4;
+        }
+        .feedback.incorrect {
+            border-left-color: #dc2626;
+            background: #fef2f2;
+        }
+        .feedback .fb-title {
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .feedback .fb-title i {
+            margin-right: 8px;
+        }
+        .feedback .fb-explain {
+            color: #1e293b;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        .nav-buttons button {
+            background: #fff;
+            border: 2px solid #e2e8f0;
+            padding: 12px 28px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #0b2b44;
+            flex: 1 1 auto;
+        }
+        .nav-buttons button:hover:not(:disabled) {
+            border-color: #1a4b6d;
+            background: #f1f5f9;
+        }
+        .nav-buttons button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* ----- result view ----- */
+        .result-view {
+            display: none;
+            background: #fff;
+            border-radius: 24px;
+            padding: 30px;
+            border: 1px solid #e9edf2;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            margin-bottom: 20px;
+        }
+        .result-view.active {
+            display: block;
+        }
+        .result-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e9edf2;
+            padding-bottom: 16px;
+        }
+        .result-header .score-big {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #0b2b44;
+        }
+        .result-header .score-big small {
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: #64748b;
+        }
+        .result-header .grade {
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 6px 20px;
+            border-radius: 40px;
+            background: #f1f5f9;
+        }
+        .result-header .grade.pass {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        .result-header .grade.fail {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .result-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .result-item .r-qid {
+            font-weight: 600;
+            min-width: 60px;
+            color: #64748b;
+        }
+        .result-item .r-tag {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 10px;
+            border-radius: 20px;
+            background: #1a4b6d;
+            color: #fff;
+        }
+        .result-item .r-tag.gs {
+            background: #b45309;
+        }
+        .result-item .r-status {
+            font-weight: 600;
+            margin-left: auto;
+            padding: 2px 14px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+        }
+        .result-item .r-status.correct {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        .result-item .r-status.incorrect {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .result-item .r-status.unanswered {
+            background: #f1f5f9;
+            color: #94a3b8;
+        }
+        .result-item .r-detail {
+            flex: 1 1 100%;
+            font-size: 0.9rem;
+            color: #4b5a6e;
+            padding-left: 72px;
+        }
+        .result-item .r-detail .math {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+        }
+        .result-actions {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-top: 24px;
+            justify-content: center;
+        }
+        .result-actions button {
+            padding: 12px 32px;
+            border-radius: 60px;
+            font-weight: 600;
+            border: 2px solid #e2e8f0;
+            background: #fff;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .result-actions button:hover {
+            border-color: #1a4b6d;
+            background: #f1f5f9;
+        }
+        .result-actions button.primary {
+            background: #0b2b44;
+            color: #fff;
+            border-color: #0b2b44;
+        }
+        .result-actions button.primary:hover {
+            background: #1a4b6d;
+        }
+        .result-actions button.print-btn {
+            background: #facc15;
+            border-color: #facc15;
+            color: #0b2b44;
+        }
+        .result-actions button.print-btn:hover {
+            background: #fde047;
+        }
+
+        /* responsive */
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+                padding: 18px;
+            }
+            .header-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            .question-card {
+                padding: 20px 16px;
+            }
+            .question-card .q-text {
+                font-size: 1rem;
+            }
+            .options .option {
+                padding: 10px 14px;
+                font-size: 0.9rem;
+            }
+            .stats {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+                padding: 14px;
+            }
+            .stats .progress-wrap {
+                flex: unset;
+                width: 100%;
+            }
+            .nav-buttons button {
+                padding: 10px 16px;
+                font-size: 0.85rem;
+                flex: 1 1 100%;
+            }
+            .result-view {
+                padding: 20px 16px;
+            }
+            .result-header {
+                flex-direction: column;
+                gap: 8px;
+                align-items: flex-start;
+            }
+            .result-item {
+                padding: 10px 12px;
+            }
+            .result-item .r-detail {
+                padding-left: 0;
+            }
+        }
+
+        @media print {
+            .header-actions, .stats, .nav-buttons, .result-actions {
+                display: none !important;
+            }
+            .result-view {
+                box-shadow: none !important;
+                border: 1px solid #ccc !important;
+            }
+            body {
+                background: #fff !important;
+                padding: 10px !important;
+            }
+            .container {
+                max-width: 100% !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- ===== HEADER ===== -->
+        <header class="header">
+            <div>
+                <h1><i class="fas fa-question-circle"></i> Concepts & Formulas</h1>
+                <div class="sub">Arithmetic & Geometric Sequences · MC Quiz</div>
+            </div>
+            <div class="header-actions">
+                <button class="btn-result" id="showResultBtn"><i class="fas fa-file-alt"></i> View Result</button>
+                <button class="btn-reset" id="resetBtn"><i class="fas fa-undo-alt"></i> Reset All</button>
+            </div>
+        </header>
+
+        <!-- ===== STATS ===== -->
+        <div class="stats" id="statsBar">
+            <div class="score">
+                <i class="fas fa-star" style="color:#facc15;"></i>
+                Score: <span id="scoreNum">0</span> / <span id="totalNum">0</span>
+            </div>
+            <div class="progress-wrap">
+                <div class="fill" id="progressFill"></div>
+            </div>
+            <div class="q-counter" id="qCounter">Question 1 / 0</div>
+        </div>
+
+        <!-- ===== QUESTION VIEW ===== -->
+        <div id="questionView">
+            <div id="questionContainer"></div>
+        </div>
+
+        <!-- ===== RESULT VIEW ===== -->
+        <div class="result-view" id="resultView">
+            <div id="resultContent"></div>
+        </div>
+
+    </div>
+
+    <script>
+        // ========================================================================
+        //  QUESTION BANK (All in English)
+        // ========================================================================
+
+        const QUESTIONS = [{
+            id: 1,
+            tag: 'AS',
+            text: 'Which of the following is the correct definition of an <b>Arithmetic Sequence</b>?',
+            options: [
+                'The difference between any two terms is equal.',
+                'The difference between any term (except the first) and its preceding term is constant.',
+                'The ratio between any two terms is constant.',
+                'The ratio between any term (except the first) and its preceding term is constant.'
+            ],
+            correct: 1,
+            explanation: 'Definition of an Arithmetic Sequence: From the second term onward, the difference between each term and its preceding term is the same constant (common difference).'
+        }, {
+            id: 2,
+            tag: 'GS',
+            text: 'Which of the following is the correct definition of a <b>Geometric Sequence</b>?',
+            options: [
+                'The ratio between any two terms is constant.',
+                'The difference between any term and its preceding term is constant.',
+                'The ratio between any term (except the first) and its preceding term is constant.',
+                'The sum of any two consecutive terms is constant.'
+            ],
+            correct: 2,
+            explanation: 'Definition of a Geometric Sequence: From the second term onward, the ratio between each term and its preceding term is the same constant (common ratio).'
+        }, {
+            id: 3,
+            tag: 'AS',
+            text: 'In the general term formula of an Arithmetic Sequence, <span class="math">T<sub>n</sub> = a + (n−1)d</span>, what does <span class="math">d</span> represent?',
+            options: [
+                'First term',
+                'Common difference',
+                'Common ratio',
+                'Number of terms'
+            ],
+            correct: 1,
+            explanation: 'In an Arithmetic Sequence, <span class="math">d</span> is the common difference, i.e., the constant difference between each term and its preceding term.'
+        }, {
+            id: 4,
+            tag: 'GS',
+            text: 'In the general term formula of a Geometric Sequence, <span class="math">T<sub>n</sub> = a r<sup>n−1</sup></span>, what does <span class="math">r</span> represent?',
+            options: [
+                'First term',
+                'Common difference',
+                'Common ratio',
+                'Number of terms'
+            ],
+            correct: 2,
+            explanation: 'In a Geometric Sequence, <span class="math">r</span> is the common ratio, i.e., the constant ratio between each term and its preceding term.'
+        }, {
+            id: 5,
+            tag: 'AS',
+            text: 'Given that the 3rd term of an Arithmetic Sequence is 10 and the 7th term is 30. Using the property of arithmetic means, what is the 5th term?',
+            options: [
+                '15',
+                '20',
+                '25',
+                '30'
+            ],
+            correct: 1,
+            explanation: 'Arithmetic mean property: <span class="math">T<sub>5</sub> = (T<sub>3</sub> + T<sub>7</sub>) / 2 = (10+30)/2 = 20</span>.'
+        }, {
+            id: 6,
+            tag: 'GS',
+            text: 'Given that the 2nd term of a Geometric Sequence is 6 and the 4th term is 54. Using the property of geometric means, what is the 3rd term?',
+            options: [
+                '18',
+                '24',
+                '30',
+                '36'
+            ],
+            correct: 0,
+            explanation: 'Geometric mean property: <span class="math">T<sub>3</sub><sup>2</sup> = T<sub>2</sub> × T<sub>4</sub> = 6 × 54 = 324</span>, so <span class="math">T<sub>3</sub> = √324 = 18</span> (assuming positive common ratio).'
+        }, {
+            id: 7,
+            tag: 'AS',
+            text: 'What is the formula for the sum of the first <span class="math">n</span> terms of an Arithmetic Sequence, <span class="math">S<sub>n</sub></span>, given the first term <span class="math">a</span> and the last term <span class="math">ℓ</span>?',
+            options: [
+                '<span class="math">S<sub>n</sub> = n(a + ℓ)</span>',
+                '<span class="math">S<sub>n</sub> = n/2 · (a + ℓ)</span>',
+                '<span class="math">S<sub>n</sub> = n/2 · [2a + (n−1)d]</span>',
+                '<span class="math">S<sub>n</sub> = a(1−r<sup>n</sup>)/(1−r)</span>'
+            ],
+            correct: 1,
+            explanation: 'The correct formula is <span class="math">S<sub>n</sub> = n/2 (a + ℓ)</span>, where <span class="math">ℓ</span> is the last term. Option C is an alternative form (using the common difference), but this question specifies using the first and last terms.'
+        }, {
+            id: 8,
+            tag: 'GS',
+            text: 'What is the formula for the sum of the first <span class="math">n</span> terms of a Geometric Sequence, <span class="math">S<sub>n</sub></span>, for <span class="math">r ≠ 1</span>?',
+            options: [
+                '<span class="math">S<sub>n</sub> = a(1−r<sup>n</sup>) / (1−r)</span>',
+                '<span class="math">S<sub>n</sub> = a(r<sup>n</sup>−1) / (r−1)</span>',
+                'Both of the above are valid.',
+                '<span class="math">S<sub>n</sub> = n/2 · (a + ℓ)</span>'
+            ],
+            correct: 2,
+            explanation: 'Both formulas are equivalent and can be used for <span class="math">r ≠ 1</span>. They are just algebraically rearranged versions of the same expression.'
+        }, {
+            id: 9,
+            tag: 'GS',
+            text: 'If the common ratio <span class="math">|r| < 1</span> in a Geometric Sequence, what is the sum to infinity <span class="math">S<sub>∞</sub></span>?',
+            options: [
+                '<span class="math">a / (1−r)</span>',
+                '<span class="math">a / (r−1)</span>',
+                '<span class="math">a(1−r<sup>n</sup>)/(1−r)</span>',
+                'It does not exist.'
+            ],
+            correct: 0,
+            explanation: 'When <span class="math">|r| < 1</span>, the sum to infinity converges to <span class="math">S<sub>∞</sub> = a / (1−r)</span>.'
+        }, {
+            id: 10,
+            tag: 'AS',
+            text: 'If three numbers are inserted between 2 and 18 to form an Arithmetic Sequence of five terms, what are the three inserted numbers in order?',
+            options: [
+                '6, 10, 14',
+                '4, 8, 12',
+                '5, 10, 15',
+                '8, 12, 16'
+            ],
+            correct: 0,
+            explanation: 'Common difference <span class="math">d = (18−2)/(5−1) = 16/4 = 4</span>. The sequence is 2, 6, 10, 14, 18, so the inserted numbers are 6, 10, and 14.'
+        }, {
+            id: 11,
+            tag: 'GS',
+            text: 'If three numbers are inserted between 3 and 48 to form a Geometric Sequence of five terms, what is the third inserted number (i.e., the middle term)?',
+            options: [
+                '6',
+                '12',
+                '24',
+                '36'
+            ],
+            correct: 2,
+            explanation: 'Common ratio <span class="math">r<sup>4</sup> = 48/3 = 16 ⇒ r = ±2</span>. For <span class="math">r = 2</span>, the sequence is 3, 6, 12, 24, 48 (middle term = 12). For <span class="math">r = −2</span>, the sequence is 3, −6, 12, −24, 48 (middle term is also 12). Thus the third term is 12.'
+        }, {
+            id: 12,
+            tag: 'AS',
+            text: 'Given that the 2nd term of an Arithmetic Sequence is 8 and the 5th term is 20, what is the 8th term?',
+            options: [
+                '24',
+                '28',
+                '32',
+                '36'
+            ],
+            correct: 2,
+            explanation: 'Common difference <span class="math">d = (20−8)/(5−2) = 12/3 = 4</span>. The 8th term = 5th term + 3d = 20 + 12 = 32.'
+        }, {
+            id: 13,
+            tag: 'GS',
+            text: 'Given that the 3rd term of a Geometric Sequence is 18 and the 6th term is 486, what is the common ratio <span class="math">r</span>?',
+            options: [
+                '2',
+                '3',
+                '4',
+                '6'
+            ],
+            correct: 1,
+            explanation: '<span class="math">T<sub>6</sub>/T<sub>3</sub> = r<sup>3</sup> ⇒ 486/18 = 27 = r<sup>3</sup> ⇒ r = 3</span>.'
+        }];
+
+        const FINAL_QUESTIONS = QUESTIONS.map((q, idx) => ({ ...q, id: idx + 1 }));
+
+        // ========================================================================
+        //  STATE
+        // ========================================================================
+
+        let currentIndex = 0;
+        let answers = {};
+        let submitted = {};
+        let showingResult = false;
+        let autoJumpTimer = null;
+
+        // ========================================================================
+        //  DOM refs
+        // ========================================================================
+
+        const container = document.getElementById('questionContainer');
+        const questionView = document.getElementById('questionView');
+        const resultView = document.getElementById('resultView');
+        const resultContent = document.getElementById('resultContent');
+        const scoreSpan = document.getElementById('scoreNum');
+        const totalSpan = document.getElementById('totalNum');
+        const progressFill = document.getElementById('progressFill');
+        const qCounter = document.getElementById('qCounter');
+        const showResultBtn = document.getElementById('showResultBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        // ========================================================================
+        //  RENDER QUESTION
+        // ========================================================================
+
+        function renderQuestion() {
+            if (showingResult) return;
+            const q = FINAL_QUESTIONS[currentIndex];
+            if (!q) return;
+
+            const isAnswered = submitted[q.id] !== undefined;
+            const selectedIdx = answers[q.id] !== undefined ? answers[q.id] : -1;
+
+            let html = `
+                <div class="question-card">
+                    <div class="q-header">
+                        <span class="q-number">Question ${q.id}</span>
+                        <span class="q-tag ${q.tag === 'AS' ? '' : 'gs'}">${q.tag === 'AS' ? 'A.S.' : 'G.S.'}</span>
+                    </div>
+                    <div class="q-text">${q.text}</div>
+                    <div class="options">
+            `;
+
+            const letters = ['A', 'B', 'C', 'D'];
+            q.options.forEach((opt, idx) => {
+                let classes = 'option';
+                if (isAnswered) {
+                    classes += ' disabled';
+                    if (idx === q.correct) classes += ' show-correct';
+                    if (selectedIdx === idx && idx !== q.correct) classes += ' selected-incorrect';
+                    if (selectedIdx === idx && idx === q.correct) classes += ' selected-correct';
+                }
+                html += `
+                    <div class="${classes}" data-optindex="${idx}" data-qid="${q.id}">
+                        <span class="letter">${letters[idx]}.</span>
+                        <span class="content">${opt}</span>
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                    <div class="feedback ${isAnswered ? (selectedIdx === q.correct ? 'correct' : 'incorrect') : ''}" id="feedback-${q.id}" style="${isAnswered ? 'display:block;' : 'display:none;'}">
+                        <div class="fb-title">
+                            <i class="fas ${selectedIdx === q.correct ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+                            ${selectedIdx === q.correct ? '✓ Correct!' : '✗ Incorrect'}
+                        </div>
+                        <div class="fb-explain">${q.explanation}</div>
+                    </div>
+            `;
+
+            html += `
+                </div>
+                <div class="nav-buttons">
+                    <button id="prevBtn" ${currentIndex === 0 ? 'disabled' : ''}><i class="fas fa-arrow-left"></i> Previous</button>
+                    <button id="nextBtn" ${currentIndex === FINAL_QUESTIONS.length - 1 ? 'disabled' : ''}>Next <i class="fas fa-arrow-right"></i></button>
+                </div>
+            `;
+
+            container.innerHTML = html;
+
+            document.querySelectorAll('.option:not(.disabled)').forEach(el => {
+                el.addEventListener('click', function() {
+                    const qid = parseInt(this.dataset.qid);
+                    const optIdx = parseInt(this.dataset.optindex);
+                    if (submitted[qid] !== undefined) return;
+                    handleSelect(qid, optIdx);
+                });
+            });
+
+            document.getElementById('prevBtn').addEventListener('click', () => {
+                if (currentIndex > 0) { currentIndex--; renderQuestion(); updateCounter(); }
+            });
+            document.getElementById('nextBtn').addEventListener('click', () => {
+                if (currentIndex < FINAL_QUESTIONS.length - 1) { currentIndex++; renderQuestion(); updateCounter(); }
+            });
+
+            updateCounter();
+            updateScore();
+        }
+
+        function handleSelect(qid, optIdx) {
+            if (submitted[qid] !== undefined) return;
+            const q = FINAL_QUESTIONS.find(q => q.id === qid);
+            if (!q) return;
+
+            answers[qid] = optIdx;
+            submitted[qid] = true;
+
+            // Check if this is the LAST question
+            const lastQuestion = FINAL_QUESTIONS[FINAL_QUESTIONS.length - 1];
+            const isLastQuestion = (qid === lastQuestion.id);
+
+            // Update UI to show feedback
+            renderQuestion();
+            updateScore();
+            saveState();
+
+            if (isLastQuestion) {
+                // Auto-jump to result page after a short delay (so student sees the final feedback)
+                if (autoJumpTimer) clearTimeout(autoJumpTimer);
+                autoJumpTimer = setTimeout(() => {
+                    renderResult();
+                    autoJumpTimer = null;
+                }, 800);
+            }
+        }
+
+        // ========================================================================
+        //  SCORE & COUNTER
+        // ========================================================================
+
+        function updateScore() {
+            let correct = 0;
+            let total = FINAL_QUESTIONS.length;
+            for (const q of FINAL_QUESTIONS) {
+                if (submitted[q.id] !== undefined) {
+                    if (answers[q.id] === q.correct) correct++;
+                }
+            }
+            scoreSpan.textContent = correct;
+            totalSpan.textContent = total;
+            const pct = total > 0 ? (correct / total) * 100 : 0;
+            progressFill.style.width = pct + '%';
+        }
+
+        function updateCounter() {
+            qCounter.textContent = `Question ${currentIndex + 1} / ${FINAL_QUESTIONS.length}`;
+        }
+
+        // ========================================================================
+        //  RESULT VIEW
+        // ========================================================================
+
+        function renderResult() {
+            // Prevent multiple calls
+            if (showingResult) return;
+            showingResult = true;
+            if (autoJumpTimer) {
+                clearTimeout(autoJumpTimer);
+                autoJumpTimer = null;
+            }
+
+            questionView.style.display = 'none';
+            resultView.classList.add('active');
+
+            let correctCount = 0;
+            let total = FINAL_QUESTIONS.length;
+            let html = `
+                <div class="result-header">
+                    <div>
+                        <div class="score-big">
+                            ${correctCount} <small>/ ${total}</small>
+                        </div>
+                        <div style="font-size:1rem; color:#64748b;">Score</div>
+                    </div>
+                    <div class="grade" id="gradeBadge">Loading...</div>
+                </div>
+                <div id="resultItems"></div>
+                <div class="result-actions">
+                    <button class="primary" id="backToQuizBtn"><i class="fas fa-arrow-left"></i> Back to Quiz</button>
+                    <button class="print-btn" onclick="window.print()"><i class="fas fa-print"></i> Print / Save as PDF</button>
+                </div>
+            `;
+            resultContent.innerHTML = html;
+
+            // Now build items
+            let itemsHtml = '';
+            for (const q of FINAL_QUESTIONS) {
+                const isAnswered = submitted[q.id] !== undefined;
+                const selected = isAnswered ? answers[q.id] : -1;
+                const isCorrect = isAnswered && selected === q.correct;
+                if (isCorrect) correctCount++;
+
+                const statusText = isAnswered ? (isCorrect ? 'Correct' : 'Incorrect') : 'Unanswered';
+                const statusClass = isAnswered ? (isCorrect ? 'correct' : 'incorrect') : 'unanswered';
+                const yourAns = isAnswered ? q.options[selected] : '—';
+                const correctAns = q.options[q.correct];
+
+                itemsHtml += `
+                    <div class="result-item">
+                        <span class="r-qid">Q${q.id}</span>
+                        <span class="r-tag ${q.tag === 'GS' ? 'gs' : ''}">${q.tag}</span>
+                        <span class="r-status ${statusClass}">${statusText}</span>
+                        <div class="r-detail">
+                            <div><strong>Your answer:</strong> ${yourAns}</div>
+                            <div><strong>Correct answer:</strong> ${correctAns}</div>
+                            <div style="font-size:0.85rem; color:#64748b; margin-top:4px;">${q.explanation}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Update score display
+            const scoreBig = resultContent.querySelector('.score-big');
+            if (scoreBig) scoreBig.innerHTML = `${correctCount} <small>/ ${total}</small>`;
+
+            const gradeBadge = document.getElementById('gradeBadge');
+            const pct = (correctCount / total) * 100;
+            if (pct >= 80) {
+                gradeBadge.textContent = '🌟 Excellent';
+                gradeBadge.className = 'grade pass';
+            } else if (pct >= 60) {
+                gradeBadge.textContent = '👍 Good';
+                gradeBadge.className = 'grade pass';
+            } else if (pct >= 40) {
+                gradeBadge.textContent = '📖 Keep Practicing';
+                gradeBadge.className = 'grade';
+            } else {
+                gradeBadge.textContent = '💪 Review Needed';
+                gradeBadge.className = 'grade fail';
+            }
+
+            document.getElementById('resultItems').innerHTML = itemsHtml;
+
+            // Bind back button
+            document.getElementById('backToQuizBtn').addEventListener('click', () => {
+                showingResult = false;
+                resultView.classList.remove('active');
+                questionView.style.display = 'block';
+                renderQuestion();
+            });
+
+            // Update stats (though already updated, ensures consistency)
+            updateScore();
+            saveState();
+        }
+
+        // ========================================================================
+        //  LOCAL STORAGE
+        // ========================================================================
+
+        function saveState() {
+            const state = {
+                answers: answers,
+                submitted: submitted,
+                currentIndex: currentIndex
+            };
+            localStorage.setItem('mcSequenceState', JSON.stringify(state));
+        }
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem('mcSequenceState');
+                if (!raw) return false;
+                const state = JSON.parse(raw);
+                answers = state.answers || {};
+                submitted = state.submitted || {};
+                currentIndex = state.currentIndex || 0;
+                return true;
+            } catch (_) { return false; }
+        }
+
+        function resetAll() {
+            if (autoJumpTimer) {
+                clearTimeout(autoJumpTimer);
+                autoJumpTimer = null;
+            }
+            answers = {};
+            submitted = {};
+            currentIndex = 0;
+            showingResult = false;
+            resultView.classList.remove('active');
+            questionView.style.display = 'block';
+            localStorage.removeItem('mcSequenceState');
+            renderQuestion();
+            updateScore();
+        }
+
+        // ========================================================================
+        //  INIT
+        // ========================================================================
+
+        const loaded = loadState();
+        if (loaded) {
+            const savedIds = Object.keys(submitted).map(Number);
+            const validIds = FINAL_QUESTIONS.map(q => q.id);
+            const allValid = savedIds.every(id => validIds.includes(id));
+            if (!allValid) {
+                resetAll();
+            } else {
+                if (currentIndex >= FINAL_QUESTIONS.length) currentIndex = 0;
+                // Check if all questions are answered, if so, show result directly
+                let allAnswered = true;
+                for (const q of FINAL_QUESTIONS) {
+                    if (submitted[q.id] === undefined) { allAnswered = false; break; }
+                }
+                if (allAnswered) {
+                    // Render question view first then jump to result
+                    questionView.style.display = 'block';
+                    resultView.classList.remove('active');
+                    renderQuestion();
+                    // Auto jump after short delay
+                    setTimeout(() => {
+                        renderResult();
+                    }, 300);
+                } else {
+                    questionView.style.display = 'block';
+                    resultView.classList.remove('active');
+                    renderQuestion();
+                }
+            }
+        } else {
+            questionView.style.display = 'block';
+            resultView.classList.remove('active');
+            renderQuestion();
+        }
+        updateScore();
+
+        // Event listeners
+        showResultBtn.addEventListener('click', () => {
+            renderResult();
+        });
+
+        resetBtn.addEventListener('click', resetAll);
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                const btn = document.getElementById('prevBtn');
+                if (btn && !btn.disabled) btn.click();
+            } else if (e.key === 'ArrowRight') {
+                const btn = document.getElementById('nextBtn');
+                if (btn && !btn.disabled) btn.click();
+            } else if (e.key === 'r' || e.key === 'R') {
+                if (!showingResult) showResultBtn.click();
+            }
+        });
+
+        console.log('✅ MC Quiz with Auto-Jump Result loaded!');
+        console.log(`📝 Total questions: ${FINAL_QUESTIONS.length}`);
+        console.log('💡 The result page will automatically appear after the last question.');
+    </script>
+</body>
+</html>
